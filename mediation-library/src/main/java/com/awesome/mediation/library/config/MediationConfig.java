@@ -1,0 +1,56 @@
+package com.awesome.mediation.library.config;
+
+import com.awesome.mediation.library.util.MediationFirebaseConfigFetcher;
+
+public interface MediationConfig {
+
+    void fetch();
+
+    void fetch(MediationFirebaseConfigFetcher.OnFetchListener fetchListener);
+
+    boolean isLivePlacement(String key);
+
+    boolean isLivePlacement(String key, boolean defaultValue);
+
+
+    boolean isLiveAdMob(String key, boolean defaultValue);
+
+    boolean isLiveAdMob(String key);
+
+    String getAdMobInterAdUnit(String key, String defaultVal);
+
+    String getAdMobNativeAdUnit(String key, String defaultVal);
+
+    String getAdMobOpenAdUnit(String key, String defaultVal);
+
+
+    boolean isLiveUnity(String key, boolean defaultValue);
+
+    boolean isLiveUnity(String key);
+
+    String getUnityBannerAdUnit(String key, String defaultVal);
+
+    String getUnityInterAdUnit(String key, String defaultVal);
+
+    String getUnityRewardAdUnit(String key, String defaultVal);
+
+
+    boolean isLiveAppodeal(String key, boolean defaultValue);
+
+    boolean isLiveAppodeal(String key);
+
+    String getAppodealBannerAdUnit(String key, String defaultVal);
+
+    String getAppodealNativeAdUnit(String key, String defaultVal);
+
+    String getAppodealInterAdUnit(String key, String defaultVal);
+
+    String getAppodealRewardAdUnit(String key, String defaultVal);
+
+
+    int getAdCacheTime();
+
+    String getAdPriority();
+
+    String getAdPriorityNative();
+}

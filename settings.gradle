@@ -1,0 +1,5 @@
+rootProject.name = "awesome-mediation"
+include ':app'
+include ':mediation-library'
+include ':mediation-unity'
+include ':mediation-admob'
