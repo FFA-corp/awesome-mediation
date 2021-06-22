@@ -2,17 +2,22 @@ package com.awesome.mediation.library.config;
 
 import android.content.Context;
 
+import com.awesome.mediation.library.AwesomeMediation;
 import com.awesome.mediation.library.MediationAdNetwork;
 import com.awesome.mediation.library.MediationAppDelegate;
 import com.awesome.mediation.library.util.MediationFirebaseConfigFetcher;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class MediationAdManager {
     private static MediationAdManager instance;
     private boolean debugMode;
     private boolean enableEventTrack = false;
     private MediationAppDelegate appDelegate;
+    private List<MediationAdNetwork> adNetworkDefaults;
 
     MediationAdManager(Context context) {
         initConfigs(context);
@@ -90,12 +95,20 @@ public class MediationAdManager {
         return debugMode;
     }
 
-    public MediationAdNetwork[] getAdNetworkDefault() {
-        return new MediationAdNetwork[]{};
+    public List<MediationAdNetwork> getAdNetworkDefaults() {
+        if (this.adNetworkDefaults == null) {
+            return Collections.emptyList();
+        }
+        return this.adNetworkDefaults;
+    }
+
+    public MediationAdManager setAdNetworkDefault(MediationAdNetwork... adNetworkDefaults) {
+        this.adNetworkDefaults = Arrays.asList(adNetworkDefaults);
+        return null;
     }
 
     public ArrayList<String> getAdNetworkDefaultStringList() {
-        MediationAdNetwork[] adNetworkDefault = getAdNetworkDefault();
+        List<MediationAdNetwork> adNetworkDefault = getAdNetworkDefaults();
         ArrayList<String> strings = new ArrayList<>();
         if (adNetworkDefault != null) {
             for (MediationAdNetwork mediationAd : adNetworkDefault) {

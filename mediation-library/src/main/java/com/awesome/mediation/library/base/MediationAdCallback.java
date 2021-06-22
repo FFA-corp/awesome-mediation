@@ -1,11 +1,18 @@
 package com.awesome.mediation.library.base;
 
-public interface MediationAdCallback {
-    void onAdClicked();
+public abstract class MediationAdCallback<T extends MediationNetworkLoader> {
+    public void onAdClicked() {
+    }
 
-    void onAdImpression();
+    public void onAdImpression() {
+    }
 
-    void onAdClosed();
+    public void onAdClosed() {
+    }
 
-    void onAdError();
+    public void onAdError() {
+    }
+
+    public void onAdLoaded(T mediationNetworkLoader) {
+    }
 }

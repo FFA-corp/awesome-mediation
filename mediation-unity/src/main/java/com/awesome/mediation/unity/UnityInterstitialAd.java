@@ -9,11 +9,12 @@ public class UnityInterstitialAd extends MediationInterstitialAd {
 
     @Override
     public void showAd(Context context) {
-
+        MediationAdLogger.logI("showAd");
     }
 
     @Override
     public void load(Context context) {
         MediationAdLogger.logI("load");
+        getMediationAdCallback().onAdLoaded(UnityInterstitialAd.this);
     }
 }
