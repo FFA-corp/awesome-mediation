@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAdLoaded(MediationNativeAd mediationNativeAd) {
                 super.onAdLoaded(mediationNativeAd);
-                mediationNativeAd.showAd(getApplicationContext());
+//                mediationNativeAd.showAd(this);
                 // TODO: 23/06/2021 show ad view
             }
         });

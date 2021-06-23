@@ -3,6 +3,7 @@ package com.awesome.mediation.admob;
 import android.app.Activity;
 import android.content.Context;
 
+import com.awesome.mediation.library.MediationNativeAdView;
 import com.awesome.mediation.library.base.MediationNativeAd;
 import com.awesome.mediation.library.config.MediationAdConfig;
 import com.awesome.mediation.library.config.MediationRemoteConfig;
@@ -32,7 +33,7 @@ public class AdMobNativeAd extends MediationNativeAd {
     }
 
     @Override
-    public void showAd(Context context) {
+    public void showAd(MediationNativeAdView mediationNativeAdView) {
 
     }
 
