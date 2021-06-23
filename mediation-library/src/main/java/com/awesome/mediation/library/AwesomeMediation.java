@@ -93,7 +93,7 @@ public class AwesomeMediation {
             }
 
             @Override
-            public void onAdError() {
+            public void onAdError(String errorMessage) {
                 MediationAdLogger.logI("onAdError");
                 if (destroyed) {
                     return;
@@ -101,7 +101,7 @@ public class AwesomeMediation {
                 mediationNetworkLoaderQueues.removeFirst();
                 if (mediationNetworkLoaderQueues.isEmpty()) {
                     if (callback != null) {
-                        callback.onAdError();
+                        callback.onAdError(errorMessage);
                     }
                     return;
                 }

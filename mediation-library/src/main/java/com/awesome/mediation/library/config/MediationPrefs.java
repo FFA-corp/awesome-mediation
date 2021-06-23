@@ -56,4 +56,30 @@ public class MediationPrefs extends MediationBasePrefData implements MediationCo
         return getPriorityList(AD_PRIORITY_NATIVE, defaultVal);
     }
 
+    public void saveLastInterAdRequestTime() {
+        putLong(LAST_REQUEST_IT_AD_TIME, System.currentTimeMillis());
+    }
+
+    public long getLastInterAdRequestTime() {
+        return getLong(LAST_REQUEST_IT_AD_TIME, 0);
+    }
+
+    public long getTimeItDelay() {
+        return getLong(TIME_IT_DELAY, 0);
+    }
+
+    public boolean canRequestAd() {
+        long delayTime = getTimeItDelay();
+        if (delayTime <= 0) {
+            return true;
+        }
+
+        long lastInterAdRequestTime = getLastInterAdRequestTime();
+        if (lastInterAdRequestTime <= 0) {
+            return true;
+        }
+
+        long timeUsed = System.currentTimeMillis() - lastInterAdRequestTime;
+        return timeUsed > delayTime * 1000;
+    }
 }

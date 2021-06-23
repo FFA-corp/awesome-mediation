@@ -16,7 +16,8 @@ public class UnityBannerAd extends MediationBannerAd {
     }
 
     @Override
-    public void load(Context context) {
+    public boolean load(Context context) {
         MediationAdLogger.logI("load");
+        return super.load(context);
     }
 }

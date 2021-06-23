@@ -1,6 +1,7 @@
 package com.awesome.mediation.unity;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.awesome.mediation.library.base.MediationInterstitialAd;
 import com.awesome.mediation.library.util.MediationAdLogger;
@@ -13,8 +14,10 @@ public class UnityInterstitialAd extends MediationInterstitialAd {
     }
 
     @Override
-    public void load(Context context) {
-        MediationAdLogger.logI("load");
-        getMediationAdCallback().onAdLoaded(UnityInterstitialAd.this);
+    public boolean load(Context context) {
+        if (!super.load(context)) {
+            return false;
+        }
+        return true;
     }
 }

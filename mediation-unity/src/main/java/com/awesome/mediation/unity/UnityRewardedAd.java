@@ -11,7 +11,7 @@ public class UnityRewardedAd extends MediationRewardedAd {
     }
 
     @Override
-    public void load(Context context) {
-
+    public boolean load(Context context) {
+        return super.load(context);
     }
 }

@@ -16,7 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class MediationAdRemoteConfig implements MediationConfig {
+public class MediationAdRemoteConfig implements MediationRemoteConfig {
 
     private static volatile MediationAdRemoteConfig instance;
     private Context context;

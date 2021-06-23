@@ -2,7 +2,7 @@ package com.awesome.mediation.library.config;
 
 import com.awesome.mediation.library.util.MediationFirebaseConfigFetcher;
 
-public interface MediationConfig {
+public interface MediationRemoteConfig {
 
     void fetch();
 

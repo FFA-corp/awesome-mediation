@@ -3,13 +3,13 @@ package com.awesome.mediation.library.config;
 import android.content.Context;
 
 public class MediationAdConfig {
-    private final MediationConfig config;
+    private final MediationRemoteConfig config;
 
     public MediationAdConfig(Context context) {
         this.config = new MediationAdRemoteConfig(context);
     }
 
-    public MediationConfig getConfig() {
+    public MediationRemoteConfig getConfig() {
         return config;
     }
 

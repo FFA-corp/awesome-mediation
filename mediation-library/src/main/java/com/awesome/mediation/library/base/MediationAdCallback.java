@@ -10,7 +10,7 @@ public abstract class MediationAdCallback<T extends MediationNetworkLoader> {
     public void onAdClosed() {
     }
 
-    public void onAdError() {
+    public void onAdError(String errorMessage) {
     }
 
     public void onAdLoaded(T mediationNetworkLoader) {
