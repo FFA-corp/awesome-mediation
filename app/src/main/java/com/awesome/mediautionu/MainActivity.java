@@ -5,10 +5,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
 import com.awesome.mediation.admob.AdMobInterstitialAd;
+import com.awesome.mediation.admob.AdMobNativeAd;
 import com.awesome.mediation.library.AwesomeMediation;
 import com.awesome.mediation.library.MediationAdNetwork;
 import com.awesome.mediation.library.base.MediationAdCallback;
 import com.awesome.mediation.library.base.MediationInterstitialAd;
+import com.awesome.mediation.library.base.MediationNativeAd;
 import com.awesome.mediation.library.base.MediationNetworkLoader;
 import com.awesome.mediation.library.config.MediationAdConfig;
 import com.awesome.mediation.library.config.MediationRemoteConfig;
@@ -25,15 +27,37 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        this.loadAd();
-    }
-
-    private void loadAd() {
         MediationRemoteConfig mediationConfig = new MediationAdConfig(this).getConfig();
 
+        this.loadAdInter(mediationConfig);
+        this.loadAdNative(mediationConfig);
+    }
+
+    private void loadAdNative(MediationRemoteConfig mediationConfig) {
         AwesomeMediation.Config config = new AwesomeMediation.Config(this);
         HashMap<MediationAdNetwork, MediationNetworkLoader> mediationNetworkConfigMap = new HashMap<>();
+        AdMobNativeAd adMobNativeAd = new AdMobNativeAd();
+        adMobNativeAd.setAdUnitId(mediationConfig.getAdMobNativeAdUnit("nt_test", "ca-app-pub-3940256099942544/1044960115"));
+        adMobNativeAd.setAdPositionName("nt_test");
+        mediationNetworkConfigMap.put(MediationAdNetwork.ADMOB, adMobNativeAd);
+        config.setMediationNetworkConfigMap(mediationNetworkConfigMap)
+                .setPriority(MediationAdNetwork.ADMOB, MediationAdNetwork.APPODEAL, MediationAdNetwork.UNITY);
 
+        AwesomeMediation awesomeMediation = new AwesomeMediation().setConfig(config);
+        awesomeMediation.setMediationAdCallback(new MediationAdCallback<MediationNativeAd>() {
+            @Override
+            public void onAdLoaded(MediationNativeAd mediationNativeAd) {
+                super.onAdLoaded(mediationNativeAd);
+                mediationNativeAd.showAd(getApplicationContext());
+                // TODO: 23/06/2021 show ad view
+            }
+        });
+        awesomeMediation.load();
+    }
+
+    private void loadAdInter(MediationRemoteConfig mediationConfig) {
+        AwesomeMediation.Config config = new AwesomeMediation.Config(this);
+        HashMap<MediationAdNetwork, MediationNetworkLoader> mediationNetworkConfigMap = new HashMap<>();
         UnityInterstitialAd value = new UnityInterstitialAd();
         UnityInterstitialAd unityInterstitialAd = new UnityInterstitialAd();
         unityInterstitialAd.setAdUnitId(mediationConfig.getAdMobInterAdUnit("it_test", "ca-app-pub-3940256099942544/1033173712"));
@@ -53,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAdLoaded(MediationInterstitialAd mediationNetworkLoader) {
                 super.onAdLoaded(mediationNetworkLoader);
-                adMobInterstitialAd.showAd(MainActivity.this);
+                mediationNetworkLoader.showAd(getApplicationContext());
             }
         });
         this.awesomeMediation.load();

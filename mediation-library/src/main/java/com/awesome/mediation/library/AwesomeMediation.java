@@ -94,7 +94,7 @@ public class AwesomeMediation {
 
             @Override
             public void onAdError(String errorMessage) {
-                MediationAdLogger.logI("onAdError");
+                MediationAdLogger.logI("onAdError " + errorMessage);
                 if (destroyed) {
                     return;
                 }

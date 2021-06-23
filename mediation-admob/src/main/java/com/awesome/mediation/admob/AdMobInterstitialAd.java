@@ -47,7 +47,6 @@ public class AdMobInterstitialAd extends MediationInterstitialAd {
     @Override
     public boolean load(Context context) {
         boolean b = !super.load(context);
-        Log.i("superman", "load: admob " + b);
         if (b) {
             return false;
         }
@@ -58,7 +57,6 @@ public class AdMobInterstitialAd extends MediationInterstitialAd {
 
     private void loadAd(Context context) {
 
-        Log.i("superman", "loadAd: ");
         MediationAdCallback<MediationNetworkLoader> mediationAdCallback = getMediationAdCallback();
         if (mediationAdCallback != null && TextUtils.isEmpty(adUnitId)) {
             MediationAdLogger.logE("AD UNIT is empty");
@@ -130,6 +128,5 @@ public class AdMobInterstitialAd extends MediationInterstitialAd {
                         }
                     }
                 });
-
     }
 }

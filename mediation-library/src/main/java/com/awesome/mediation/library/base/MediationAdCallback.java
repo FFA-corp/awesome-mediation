@@ -15,4 +15,5 @@ public abstract class MediationAdCallback<T extends MediationNetworkLoader> {
 
     public void onAdLoaded(T mediationNetworkLoader) {
     }
+
 }
