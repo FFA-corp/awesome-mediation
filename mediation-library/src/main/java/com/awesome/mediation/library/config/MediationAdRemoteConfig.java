@@ -185,6 +185,14 @@ public class MediationAdRemoteConfig implements MediationRemoteConfig {
     }
 
     @Override
+    public String getAdMobRewardAdUnit(String key, String defaultVal) {
+        if (isDebugMode()) {
+            return "ca-app-pub-3940256099942544/5224354917";
+        }
+        return MediationPrefs.instance(context).getString(MediationAdNetwork.ADMOB.getAdName() + "_" + key, defaultVal);
+    }
+
+    @Override
     public boolean isLiveUnity(String key, boolean defaultValue) {
         if (!isAdAvailable()) {
             return false;

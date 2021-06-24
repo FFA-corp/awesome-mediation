@@ -23,6 +23,8 @@ public interface MediationRemoteConfig {
 
     String getAdMobOpenAdUnit(String key, String defaultVal);
 
+    String getAdMobRewardAdUnit(String key, String defaultVal);
+
 
     boolean isLiveUnity(String key, boolean defaultValue);
 

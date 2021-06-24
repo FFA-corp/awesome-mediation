@@ -1,6 +1,7 @@
 package com.awesome.mediation.library.base;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.awesome.mediation.library.config.MediationAdConfig;
@@ -26,7 +27,6 @@ public abstract class MediationNetworkLoader {
         boolean canLoadAd = MediationDeviceUtil.isConnected(context) && !instance.getAppDelegate().isAppPurchased()
                 && MediationPrefs.instance(context).canRequestAd();
 
-        Log.i("superman", "load: " + canLoadAd);
         if (!canLoadAd) {
             if (getMediationAdCallback() != null) {
                 getMediationAdCallback().onAdError("App purchased");
@@ -35,14 +35,12 @@ public abstract class MediationNetworkLoader {
         }
 
         MediationRemoteConfig config = new MediationAdConfig(context).getConfig();
-        Log.i("superman", "load: 2");
         if (!config.isLivePlacement(adPositionName)) {
             if (getMediationAdCallback() != null) {
                 getMediationAdCallback().onAdError("Placement \"%s\" is disable");
             }
             return false;
         }
-        Log.i("superman", "load: 1");
         return true;
     }
 

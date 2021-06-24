@@ -1,11 +1,13 @@
 package com.awesome.mediautionu;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.awesome.mediation.admob.AdMobInterstitialAd;
 import com.awesome.mediation.admob.AdMobNativeAd;
+import com.awesome.mediation.admob.AdMobRewardAd;
 import com.awesome.mediation.library.AwesomeMediation;
 import com.awesome.mediation.library.MediationAdNetwork;
 import com.awesome.mediation.library.MediationNativeAdView;
@@ -13,6 +15,7 @@ import com.awesome.mediation.library.base.MediationAdCallback;
 import com.awesome.mediation.library.base.MediationInterstitialAd;
 import com.awesome.mediation.library.base.MediationNativeAd;
 import com.awesome.mediation.library.base.MediationNetworkLoader;
+import com.awesome.mediation.library.base.RewardAdRewardListener;
 import com.awesome.mediation.library.config.MediationAdConfig;
 import com.awesome.mediation.library.config.MediationRemoteConfig;
 import com.awesome.mediation.unity.UnityInterstitialAd;
@@ -33,7 +36,30 @@ public class MainActivity extends AppCompatActivity {
         MediationRemoteConfig mediationConfig = new MediationAdConfig(this).getConfig();
 
 //        this.loadAdInter(mediationConfig);
-        this.loadAdNative(mediationConfig);
+//        this.loadAdNative(mediationConfig);
+
+        this.loadReward(mediationConfig);
+    }
+
+    private void loadReward(MediationRemoteConfig mediationConfig) {
+        AwesomeMediation.Config config = new AwesomeMediation.Config(this);
+        HashMap<MediationAdNetwork, MediationNetworkLoader> mediationNetworkConfigMap = new HashMap<>();
+        AdMobRewardAd adMobRewardAd = new AdMobRewardAd();
+        adMobRewardAd.setAdUnitId(mediationConfig.getAdMobRewardAdUnit("rw_test", "ca-app-pub-3940256099942544/5224354917"));
+        adMobRewardAd.setAdPositionName("rw_test");
+        mediationNetworkConfigMap.put(MediationAdNetwork.ADMOB, adMobRewardAd);
+        config.setMediationNetworkConfigMap(mediationNetworkConfigMap)
+                .setPriority(MediationAdNetwork.ADMOB, MediationAdNetwork.APPODEAL, MediationAdNetwork.UNITY);
+
+        AwesomeMediation awesomeMediation = new AwesomeMediation().setConfig(config);
+        awesomeMediation.setMediationAdCallback(new MediationAdCallback<AdMobRewardAd>() {
+            @Override
+            public void onAdLoaded(AdMobRewardAd admobRewardAd) {
+                super.onAdLoaded(admobRewardAd);
+                adMobRewardAd.showAd(MainActivity.this, () -> Log.i("superman", "onUserEarnedReward: "));
+            }
+        });
+        awesomeMediation.load();
     }
 
     private void loadAdNative(MediationRemoteConfig mediationConfig) {

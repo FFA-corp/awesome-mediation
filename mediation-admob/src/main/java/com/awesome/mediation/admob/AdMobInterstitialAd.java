@@ -46,8 +46,7 @@ public class AdMobInterstitialAd extends MediationInterstitialAd {
 
     @Override
     public boolean load(Context context) {
-        boolean b = !super.load(context);
-        if (b) {
+        if (!super.load(context)) {
             return false;
         }
 
