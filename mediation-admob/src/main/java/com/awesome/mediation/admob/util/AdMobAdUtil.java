@@ -1,4 +1,4 @@
-package com.awesome.mediation.admob;
+package com.awesome.mediation.admob.util;
 
 import android.content.Context;
 import android.provider.Settings;

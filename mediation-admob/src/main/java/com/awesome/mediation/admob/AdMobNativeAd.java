@@ -3,6 +3,7 @@ package com.awesome.mediation.admob;
 import android.app.Activity;
 import android.content.Context;
 
+import com.awesome.mediation.admob.util.AdMobAdUtil;
 import com.awesome.mediation.library.MediationNativeAdView;
 import com.awesome.mediation.library.base.MediationNativeAd;
 import com.awesome.mediation.library.config.MediationAdConfig;
@@ -11,10 +12,15 @@ import com.awesome.mediation.library.util.MediationDeviceUtil;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdLoader;
 import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.nativead.AdChoicesView;
+import com.google.android.gms.ads.nativead.MediaView;
 import com.google.android.gms.ads.nativead.NativeAd;
 import com.google.android.gms.ads.nativead.NativeAdOptions;
+import com.google.android.gms.ads.nativead.NativeAdView;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public class AdMobNativeAd extends MediationNativeAd {
     private NativeAd loadedAd;
@@ -34,11 +40,7 @@ public class AdMobNativeAd extends MediationNativeAd {
 
     @Override
     public void showAd(MediationNativeAdView mediationNativeAdView) {
-
-    }
-
-    public NativeAd getLoadedAd() {
-        return loadedAd;
+        mediationNativeAdView.show(this);
     }
 
     private AdLoader configAd(Context context) {
@@ -68,6 +70,8 @@ public class AdMobNativeAd extends MediationNativeAd {
                         return;
                     }
                     this.loadedAd = unifiedNativeAd;
+                    populateDataFromAdLoadedInstance(context);
+                    super.adLoaded = true;
                     if (getMediationAdCallback() != null) {
                         getMediationAdCallback().onAdLoaded(AdMobNativeAd.this);
                     }
@@ -77,6 +81,7 @@ public class AdMobNativeAd extends MediationNativeAd {
             @Override
             public void onAdImpression() {
                 super.onAdImpression();
+                adShowed = true;
                 if (getMediationAdCallback() != null) {
                     getMediationAdCallback().onAdImpression();
                 }
@@ -100,10 +105,46 @@ public class AdMobNativeAd extends MediationNativeAd {
         }).build();
     }
 
+    protected void populateDataFromAdLoadedInstance(Context context) {
+        if (loadedAd == null) {
+            return;
+        }
+        super.adBody = loadedAd.getBody();
+        super.adCallToAction = loadedAd.getCallToAction();
+        super.adTitle = loadedAd.getHeadline();
+        NativeAd.AdChoicesInfo adChoicesInfo = loadedAd.getAdChoicesInfo();
+        if (adChoicesInfo != null) {
+            super.adAdChoiceView = new AdChoicesView(context);
+        }
+        super.adMediaView = new MediaView(context);
+        NativeAd.Image icon = loadedAd.getIcon();
+        if (icon != null) {
+            super.adIconDrawable = icon.getDrawable();
+        } else {
+            List<NativeAd.Image> images = loadedAd.getImages();
+            if (images.size() > 0) {
+                NativeAd.Image image = images.get(0);
+                if (image != null) {
+                    super.adIconDrawable = image.getDrawable();
+                }
+            }
+        }
+    }
+
+    @Override
+    public Object getAdLoadedInstance() {
+        return loadedAd;
+    }
+
     private void onAdLoadFailed(String message) {
         if (this.getMediationAdCallback() != null) {
             this.getMediationAdCallback().onAdError(message);
         }
+    }
+
+    @Override
+    public Class<?> getAdContainerClass() {
+        return NativeAdView.class;
     }
 }
 

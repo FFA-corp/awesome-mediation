@@ -41,4 +41,8 @@ dependencies {
     implementation project(path: ':mediation-unity')
     implementation project(path: ':mediation-admob')
 
+    implementation 'com.google.firebase:firebase-config:21.0.0'
+    implementation 'com.google.firebase:firebase-core:19.0.0'
+    implementation 'com.squareup.picasso:picasso:2.71828'
+
 }

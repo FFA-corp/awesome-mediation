@@ -7,6 +7,7 @@ import androidx.lifecycle.Lifecycle.Event.ON_START
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.lifecycle.ProcessLifecycleOwner
+import com.awesome.mediation.admob.util.AdMobAdUtil
 import com.awesome.mediation.library.MediationInterstitialAdCache
 import com.awesome.mediation.library.config.MediationAdManager
 import com.awesome.mediation.library.util.MediationAdLogger
@@ -17,7 +18,7 @@ import com.google.android.gms.ads.appopen.AppOpenAd.AppOpenAdLoadCallback
 import com.google.android.gms.ads.rewarded.RewardedAd
 import java.util.*
 
-class AppOpenManager(
+class AdMobAppOpenManager(
     private var myApplication: Application,
     private var adUnit: String,
     private var enable: Boolean
@@ -103,7 +104,7 @@ class AppOpenManager(
         val fullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdDismissedFullScreenContent() {
                 customCallback?.onAdDismissedFullScreenContent()
-                this@AppOpenManager.appOpenAd = null
+                this@AdMobAppOpenManager.appOpenAd = null
                 isShowingAd = false
                 fetchAd()
             }
@@ -145,8 +146,8 @@ class AppOpenManager(
                 super.onAdLoaded(ad)
                 MediationAdLogger.logD(LOG_TAG, "onAdLoaded: ")
 
-                this@AppOpenManager.appOpenAd = ad
-                this@AppOpenManager.loadTime = (Date()).time
+                this@AdMobAppOpenManager.appOpenAd = ad
+                this@AdMobAppOpenManager.loadTime = (Date()).time
             }
 
         }

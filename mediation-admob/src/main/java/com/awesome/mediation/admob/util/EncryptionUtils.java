@@ -1,4 +1,4 @@
-package com.awesome.mediation.admob;
+package com.awesome.mediation.admob.util;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;

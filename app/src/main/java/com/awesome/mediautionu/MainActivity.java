@@ -1,13 +1,14 @@
 package com.awesome.mediautionu;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.awesome.mediation.admob.AdMobInterstitialAd;
 import com.awesome.mediation.admob.AdMobNativeAd;
 import com.awesome.mediation.library.AwesomeMediation;
 import com.awesome.mediation.library.MediationAdNetwork;
+import com.awesome.mediation.library.MediationNativeAdView;
 import com.awesome.mediation.library.base.MediationAdCallback;
 import com.awesome.mediation.library.base.MediationInterstitialAd;
 import com.awesome.mediation.library.base.MediationNativeAd;
@@ -21,15 +22,17 @@ import java.util.HashMap;
 public class MainActivity extends AppCompatActivity {
 
     private AwesomeMediation awesomeMediation;
+    private MediationNativeAdView nativeAdView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        nativeAdView = findViewById(R.id.native_ad_view);
         MediationRemoteConfig mediationConfig = new MediationAdConfig(this).getConfig();
 
-        this.loadAdInter(mediationConfig);
+//        this.loadAdInter(mediationConfig);
         this.loadAdNative(mediationConfig);
     }
 
@@ -48,8 +51,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAdLoaded(MediationNativeAd mediationNativeAd) {
                 super.onAdLoaded(mediationNativeAd);
-//                mediationNativeAd.showAd(this);
-                // TODO: 23/06/2021 show ad view
+                mediationNativeAd.showAd(nativeAdView);
             }
         });
         awesomeMediation.load();

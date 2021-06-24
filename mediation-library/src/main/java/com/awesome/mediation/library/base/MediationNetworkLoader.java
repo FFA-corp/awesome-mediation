@@ -13,13 +13,15 @@ public abstract class MediationNetworkLoader {
     protected String adUnitId;
     private MediationAdCallback<MediationNetworkLoader> mediationAdCallback;
     protected String adPositionName;
-    public boolean adShowed = false;
+    protected boolean adShowed = false;
+    protected boolean adLoaded = false;
 
     public void setAdUnitId(String adUnitId) {
         this.adUnitId = adUnitId;
     }
 
     public boolean load(Context context) {
+        this.adLoaded = false;
         MediationAdManager instance = MediationAdManager.getInstance(context);
         boolean canLoadAd = MediationDeviceUtil.isConnected(context) && !instance.getAppDelegate().isAppPurchased()
                 && MediationPrefs.instance(context).canRequestAd();
@@ -58,5 +60,9 @@ public abstract class MediationNetworkLoader {
 
     public boolean isAdShowed() {
         return adShowed;
+    }
+
+    public boolean isAdLoaded() {
+        return adLoaded;
     }
 }

@@ -2,7 +2,9 @@ package com.awesome.mediation.library;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -18,8 +20,18 @@ import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 
 import com.awesome.mediation.library.base.MediationNativeAd;
+import com.awesome.mediation.library.util.MediationAdLogger;
+import com.squareup.picasso.Picasso;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public class MediationNativeAdView extends LinearLayout {
+
+    private static final String TAG = "MEDIATION-NATIVE";
+    private static final String ADMOB_NATIVE_AD_VIEW = "com.google.android.gms.ads.nativead.NativeAdView";
+    private static final String ADMOB_NATIVE_AD = "com.google.android.gms.ads.nativead.NativeAd";
 
     private TextView tvNativeTitle;
     private TextView tvNativeBody;
@@ -29,7 +41,7 @@ public class MediationNativeAdView extends LinearLayout {
     private FrameLayout layoutContentAd;
     private LinearLayout layoutRootAd;
     private RelativeLayout layoutMediaView;
-    private Style adStyle = Style.NORMAL;
+    private Style adStyle = Style.MEDIA_VIEW;
     private boolean adAttached;
     private View nativeAdContentLayout;
     private ViewGroup layoutAdContent;
@@ -135,54 +147,87 @@ public class MediationNativeAdView extends LinearLayout {
             setVisibility(GONE);
             return;
         }
+        MediationAdLogger.logD(TAG, unifiedNativeAd.toString());
         this.adAttached = true;
         this.layoutContentAd.setVisibility(VISIBLE);
         this.viewIcon.removeAllViews();
         this.layoutAdChoice.removeAllViews();
         this.layoutRootAd.removeAllViews();
 
-        this.tvNativeTitle.setText(unifiedNativeAd.getHeadline());
-        this.tvNativeBody.setText(unifiedNativeAd.getBody());
-        this.btNativeCta.setText(unifiedNativeAd.getCallToAction());
         this.hideLoadingState(tvNativeTitle, tvNativeBody, btNativeCta, viewIcon, layoutMediaView);
-//
-//        com.google.android.gms.ads.nativead.NativeAdView unifiedNativeAdView = new com.google.android.gms.ads.nativead.NativeAdView(getContext());
-//        unifiedNativeAdView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-//
-//        if (this.adStyle == Style.MEDIA_VIEW) {
-//            MediaView admobMediaView = new MediaView(getContext());
-//            this.layoutMediaView.addView(admobMediaView, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-//            this.layoutMediaView.setVisibility(VISIBLE);
-//            unifiedNativeAdView.setMediaView(admobMediaView);
-//        }
-//
-//        ImageView admobIcon = new ImageView(getContext());
-//        this.viewIcon.addView(admobIcon, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-//        NativeAd.Image icon = unifiedNativeAd.getIcon();
-//        if (icon != null && icon.getDrawable() != null) {
-//            admobIcon.setImageDrawable(icon.getDrawable());
-//        }
-//        unifiedNativeAdView.setHeadlineView(tvNativeTitle);
-//        unifiedNativeAdView.setCallToActionView(btNativeCta);
-//        unifiedNativeAdView.setBodyView(tvNativeBody);
-//        unifiedNativeAdView.setIconView(admobIcon);
-//        unifiedNativeAdView.setNativeAd(unifiedNativeAd);
-//
-//        AdChoicesView adChoicesView = new AdChoicesView(layoutContentAd.getContext());
-//        if (unifiedNativeAd.getAdChoicesInfo() != null) {
-//            Log.i("superman", "show: 1");
-//            AdChoicesView choicesView = new AdChoicesView(unifiedNativeAdView.getContext());
-//            unifiedNativeAdView.setAdChoicesView(choicesView);
-//        }
-//
-//        Log.i("superman", "show: 2");
-//        layoutAdChoice.addView(adChoicesView);
-//        unifiedNativeAdView.addView(layoutContentAd);
-//        this.layoutRootAd.addView(unifiedNativeAdView);
 
-        // TODO: 23/06/2021 Process multiple network
+        Context context = getContext();
+        FrameLayout nativeAdView = new FrameLayout(context);
+        Class<?> adContainerClass = unifiedNativeAd.getAdContainerClass();
+        String name = adContainerClass.getName();
+        if (ADMOB_NATIVE_AD_VIEW.equalsIgnoreCase(name)) {
+            setupAdViewForAdMob(unifiedNativeAd, context);
+        }
+
+        this.tvNativeTitle.setText(unifiedNativeAd.getAdTitle());
+        this.tvNativeBody.setText(unifiedNativeAd.getAdBody());
+        this.btNativeCta.setBackgroundResource(R.drawable.mdl_bg_cta);
+        this.btNativeCta.setText(unifiedNativeAd.getAdCallToAction());
+
+        ViewGroup adMediaView = unifiedNativeAd.getAdMediaView();
+        if (this.adStyle == Style.MEDIA_VIEW && adMediaView != null) {
+            this.layoutMediaView.addView(adMediaView, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+            this.layoutMediaView.setVisibility(VISIBLE);
+        }
+        ImageView admobIcon = new ImageView(context);
+        this.viewIcon.addView(admobIcon, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        Drawable adIconDrawable = unifiedNativeAd.getAdIconDrawable();
+        if (adIconDrawable != null) {
+            admobIcon.setImageDrawable(adIconDrawable);
+        } else {
+            String adIconUrl = unifiedNativeAd.getAdIconUrl();
+            if (!TextUtils.isEmpty(adIconUrl)) {
+                Picasso.get().load(adIconUrl).into(admobIcon);
+            }
+        }
+        ViewGroup adAdChoiceView = unifiedNativeAd.getAdAdChoiceView();
+        if (adAdChoiceView != null) {
+            layoutAdChoice.addView(adAdChoiceView);
+        }
+        nativeAdView.addView(layoutContentAd);
+        this.layoutRootAd.addView(nativeAdView);
+
         this.layoutRootAd.setVisibility(VISIBLE);
         setVisibility(VISIBLE);
+    }
+
+    private void setupAdViewForAdMob(MediationNativeAd unifiedNativeAd, Context context) {
+        try {
+            ClassLoader classLoader = context.getClassLoader();
+            Class<?> nativeAdViewClass = classLoader.loadClass(ADMOB_NATIVE_AD_VIEW);
+            Constructor<?> constructor = nativeAdViewClass.getDeclaredConstructor(Context.class);
+            ViewGroup nativeAdViewInstance = (ViewGroup) nativeAdViewClass.cast(constructor.newInstance(context));
+
+            Method setLayoutParams = nativeAdViewClass.getMethod("setLayoutParams", ViewGroup.LayoutParams.class);
+            setLayoutParams.invoke(nativeAdViewInstance, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+
+            Class<?> mediaViewClass = classLoader.loadClass("com.google.android.gms.ads.nativead.MediaView");
+            Object mediaViewInstance = mediaViewClass.cast(unifiedNativeAd.getAdMediaView());
+            Method setMediaView = nativeAdViewClass.getMethod("setMediaView", mediaViewClass);
+            setMediaView.invoke(nativeAdViewInstance, mediaViewInstance);
+
+            Method setHeadlineView = nativeAdViewClass.getMethod("setHeadlineView", View.class);
+            setHeadlineView.invoke(nativeAdViewInstance, tvNativeTitle);
+            Method setBodyView = nativeAdViewClass.getMethod("setBodyView", View.class);
+            setBodyView.invoke(nativeAdViewInstance, tvNativeBody);
+            Method setIconView = nativeAdViewClass.getMethod("setIconView", View.class);
+            setIconView.invoke(nativeAdViewInstance, viewIcon);
+            Method setCallToActionView = nativeAdViewClass.getMethod("setCallToActionView", View.class);
+            setCallToActionView.invoke(nativeAdViewInstance, btNativeCta);
+
+            Class<?> nativeAdClass = classLoader.loadClass(ADMOB_NATIVE_AD);
+            Method setNativeAd = nativeAdViewClass.getMethod("setNativeAd", nativeAdClass);
+            setNativeAd.invoke(nativeAdViewInstance, nativeAdClass.cast(unifiedNativeAd.getAdLoadedInstance()));
+
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            e.printStackTrace();
+            Log.i("superman", "show: " + e.getMessage());
+        }
     }
 
     public void setTitleTextColor(@ColorRes int colorRes) {

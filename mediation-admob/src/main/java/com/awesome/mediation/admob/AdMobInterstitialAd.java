@@ -4,10 +4,10 @@ package com.awesome.mediation.admob;
 import android.app.Activity;
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.awesome.mediation.admob.util.AdMobAdUtil;
 import com.awesome.mediation.library.MediationInterstitialAdCache;
 import com.awesome.mediation.library.base.MediationAdCallback;
 import com.awesome.mediation.library.base.MediationInterstitialAd;
