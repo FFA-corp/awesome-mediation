@@ -1,8 +1,6 @@
 package com.awesome.mediation.library.base;
 
 import android.content.Context;
-import android.text.TextUtils;
-import android.util.Log;
 
 import com.awesome.mediation.library.MediationAdNetwork;
 import com.awesome.mediation.library.MediationAdType;
@@ -49,6 +47,17 @@ public abstract class MediationNetworkLoader {
         }
     }
 
+    public void updateShowingState() {
+        MediationInterstitialAdCache.instance().showing.postValue(true);
+        this.adShowed = true;
+    }
+
+    protected boolean canShowAd(Context context) {
+        if (!MediationDeviceUtil.isConnected(context) || !isAdLoaded()) {
+            return false;
+        }
+        return !MediationAdManager.getInstance(context).getAppDelegate().isAppPurchased();
+    }
 
     protected void onAdClicked() {
         MediationAdLogger.showCurrentMethodName();

@@ -4,8 +4,10 @@ import android.content.Context;
 
 import com.awesome.mediation.library.base.MediationAdCallback;
 import com.awesome.mediation.library.base.MediationNetworkLoader;
+import com.awesome.mediation.library.config.MediationAdManager;
 import com.awesome.mediation.library.config.MediationPrefs;
 import com.awesome.mediation.library.util.MediationAdLogger;
+import com.awesome.mediation.library.util.MediationDeviceUtil;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -24,6 +26,14 @@ public class AwesomeMediation {
     }
 
     public void load() {
+        if (!MediationDeviceUtil.isConnected(config.context)) {
+            MediationAdLogger.logD("Not connect to internet");
+            return;
+        }
+        if (MediationAdManager.getInstance(config.context).getAppDelegate().isAppPurchased()) {
+            MediationAdLogger.logD("App is purchased");
+            return;
+        }
         List<String> priorityList = MediationPrefs.instance(config.context).getPriorityList(config.getPriority());
         Map<MediationAdNetwork, MediationNetworkLoader> mediationNetworkConfigMap = config.getMediationNetworkConfigMap();
         for (String priority : priorityList) {

@@ -44,5 +44,27 @@ public class UnityInitializer {
                 }
             }
         });
+
+        UnityAds.addListener(new IUnityAdsListener() {
+            @Override
+            public void onUnityAdsReady(String placementId) {
+
+            }
+
+            @Override
+            public void onUnityAdsStart(String placementId) {
+
+            }
+
+            @Override
+            public void onUnityAdsFinish(String placementId, UnityAds.FinishState result) {
+                MediationAdLogger.logD(placementId + "  " + result.name());
+            }
+
+            @Override
+            public void onUnityAdsError(UnityAds.UnityAdsError error, String message) {
+
+            }
+        });
     }
 }
