@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 
 import com.awesome.mediation.admob.util.AdMobAdUtil;
+import com.awesome.mediation.library.MediationAdNetwork;
 import com.awesome.mediation.library.MediationNativeAdView;
 import com.awesome.mediation.library.base.MediationNativeAd;
 import com.awesome.mediation.library.config.MediationAdConfig;
@@ -39,6 +40,17 @@ public class AdMobNativeAd extends MediationNativeAd {
     }
 
     @Override
+    protected void onAdLoaded() {
+        super.onAdLoaded();
+        getMediationAdCallback().onAdLoaded(getMediationNetwork(), getMediationAdType(), this);
+    }
+
+    @Override
+    protected MediationAdNetwork getMediationNetwork() {
+        return MediationAdNetwork.ADMOB;
+    }
+
+    @Override
     public void showAd(MediationNativeAdView mediationNativeAdView) {
         mediationNativeAdView.show(this);
     }
@@ -46,11 +58,11 @@ public class AdMobNativeAd extends MediationNativeAd {
     private AdLoader configAd(Context context) {
         MediationRemoteConfig config = new MediationAdConfig(context).getConfig();
         if (!MediationDeviceUtil.isConnected(context)) {
-            onAdLoadFailed("Not connect to internet!");
+            onAdError("Not connect to internet!");
             return null;
         }
         if (!config.isLiveAdMob(adPositionName) || !config.isLivePlacement(adPositionName)) {
-            onAdLoadFailed("Ad is turn off!");
+            onAdError("Ad is turn off!");
             return null;
         }
 
@@ -64,17 +76,13 @@ public class AdMobNativeAd extends MediationNativeAd {
                         }
                     }
                     if (adDestroyed) {
-                        if (getMediationAdCallback() != null) {
-                            getMediationAdCallback().onAdError("Context destroy => ad destroyed!");
-                        }
+                        onAdError("Context destroy => ad destroyed!");
                         return;
                     }
                     this.loadedAd = unifiedNativeAd;
                     populateDataFromAdLoadedInstance(context);
-                    super.adLoaded = true;
-                    if (getMediationAdCallback() != null) {
-                        getMediationAdCallback().onAdLoaded(AdMobNativeAd.this);
-                    }
+
+                    onAdLoaded();
                 }).withNativeAdOptions(new NativeAdOptions.Builder()
                         .setAdChoicesPlacement(NativeAdOptions.ADCHOICES_TOP_RIGHT).build());
         return builder.withAdListener(new AdListener() {
@@ -82,25 +90,19 @@ public class AdMobNativeAd extends MediationNativeAd {
             public void onAdImpression() {
                 super.onAdImpression();
                 adShowed = true;
-                if (getMediationAdCallback() != null) {
-                    getMediationAdCallback().onAdImpression();
-                }
+                AdMobNativeAd.super.onAdImpression();
             }
 
             @Override
             public void onAdClicked() {
                 super.onAdClicked();
-                if (getMediationAdCallback() != null) {
-                    getMediationAdCallback().onAdClicked();
-                }
+                AdMobNativeAd.this.onAdClicked();
             }
 
             @Override
             public void onAdFailedToLoad(@NotNull LoadAdError loadAdError) {
                 super.onAdFailedToLoad(loadAdError);
-                if (getMediationAdCallback() != null) {
-                    getMediationAdCallback().onAdError(loadAdError.getMessage());
-                }
+                onAdError(loadAdError.getMessage());
             }
         }).build();
     }
@@ -134,12 +136,6 @@ public class AdMobNativeAd extends MediationNativeAd {
     @Override
     public Object getAdLoadedInstance() {
         return loadedAd;
-    }
-
-    private void onAdLoadFailed(String message) {
-        if (this.getMediationAdCallback() != null) {
-            this.getMediationAdCallback().onAdError(message);
-        }
     }
 
     @Override

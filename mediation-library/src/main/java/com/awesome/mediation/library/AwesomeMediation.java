@@ -52,60 +52,57 @@ public class AwesomeMediation {
 
     private void executeQueues() {
         MediationNetworkLoader mediationNetworkLoader = mediationNetworkLoaderQueues.getFirst();
-        mediationNetworkLoader.setAdLoaderCallback(new MediationAdCallback() {
-
+        mediationNetworkLoader.setAdLoaderCallback(new MediationAdCallback<MediationNetworkLoader>() {
             @Override
-            public void onAdClicked() {
-                MediationAdLogger.logI("onAdClicked");
+            public void onAdClicked(MediationAdNetwork mediationAdNetwork, MediationAdType adType) {
+                super.onAdClicked(mediationAdNetwork, adType);
                 if (callback != null) {
-                    callback.onAdClicked();
+                    callback.onAdClicked(mediationAdNetwork, adType);
                 }
             }
 
             @Override
-            public void onAdImpression() {
-                MediationAdLogger.logI("onAdImpression");
+            public void onAdClosed(MediationAdNetwork mediationAdNetwork, MediationAdType adType) {
+                super.onAdClosed(mediationAdNetwork, adType);
                 if (callback != null) {
-                    callback.onAdImpression();
+                    callback.onAdImpression(mediationAdNetwork, adType);
                 }
             }
 
             @Override
-            public void onAdClosed() {
-                MediationAdLogger.logI("onAdClosed");
-                if (callback != null) {
-                    callback.onAdClosed();
-                }
-            }
-
-            @Override
-            public void onAdLoaded(MediationNetworkLoader mediationNetworkLoader) {
-                MediationAdLogger.logI("onAdLoaded");
-                if (destroyed) {
-                    return;
-                }
-
-                if (callback != null) {
-                    callback.onAdLoaded(mediationNetworkLoader);
-                }
-                mediationNetworkLoaderQueues.removeFirst();
-
-            }
-
-            @Override
-            public void onAdError(String errorMessage) {
-                MediationAdLogger.logI("onAdError " + errorMessage);
+            public void onAdError(MediationAdNetwork mediationAdNetwork, MediationAdType adType, String errorMessage) {
+                super.onAdError(mediationAdNetwork, adType, errorMessage);
                 if (destroyed) {
                     return;
                 }
                 mediationNetworkLoaderQueues.removeFirst();
                 if (mediationNetworkLoaderQueues.isEmpty()) {
                     if (callback != null) {
-                        callback.onAdError(errorMessage);
+                        callback.onAdError(mediationAdNetwork, adType, errorMessage);
                     }
                     return;
                 }
                 loadNextMediationAd();
+            }
+
+            @Override
+            public void onAdImpression(MediationAdNetwork mediationAdNetwork, MediationAdType adType) {
+                super.onAdImpression(mediationAdNetwork, adType);
+                if (callback != null) {
+                    callback.onAdImpression(mediationAdNetwork, adType);
+                }
+            }
+
+            @Override
+            public void onAdLoaded(MediationAdNetwork mediationAdNetwork, MediationAdType adType, MediationNetworkLoader mediationNetworkLoader) {
+                super.onAdLoaded(mediationAdNetwork, adType, mediationNetworkLoader);
+                if (destroyed) {
+                    return;
+                }
+                if (callback != null) {
+                    callback.onAdLoaded(mediationAdNetwork, adType, mediationNetworkLoader);
+                }
+                mediationNetworkLoaderQueues.removeFirst();
             }
         });
         mediationNetworkLoader.load(config.context);

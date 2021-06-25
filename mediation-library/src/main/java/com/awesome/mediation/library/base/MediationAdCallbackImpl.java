@@ -4,6 +4,8 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
+import com.awesome.mediation.library.MediationAdNetwork;
+import com.awesome.mediation.library.MediationAdType;
 import com.awesome.mediation.library.util.MediationAdEventTracker;
 import com.awesome.mediation.library.util.MediationAdLogger;
 
@@ -26,37 +28,37 @@ public class MediationAdCallbackImpl<T extends MediationNetworkLoader> extends M
     }
 
     @Override
-    public void onAdClosed() {
-        super.onAdClosed();
-        logEvent(adPlacement, DISMISS);
-    }
-
-    private void logEvent(String adPlacement, String event) {
-        MediationAdEventTracker.instance(context).log("gad_" + adPlacement + "_" + event);
+    public void onAdClicked(MediationAdNetwork mediationAdNetwork, MediationAdType adType) {
+        super.onAdClicked(mediationAdNetwork, adType);
+        logEvent(mediationAdNetwork.getAdName(), adPlacement, CLICK);
     }
 
     @Override
-    public void onAdError(String errorMessage) {
-        super.onAdError(errorMessage);
+    public void onAdClosed(MediationAdNetwork mediationAdNetwork, MediationAdType adType) {
+        super.onAdClosed(mediationAdNetwork, adType);
+        logEvent(mediationAdNetwork.getAdName(), adPlacement, DISMISS);
+    }
+
+    @Override
+    public void onAdError(MediationAdNetwork mediationAdNetwork, MediationAdType adType, String errorMessage) {
+        super.onAdError(mediationAdNetwork, adType, errorMessage);
         MediationAdLogger.logE("Error " + errorMessage);
-        logEvent(adPlacement, ERROR);
+        logEvent(mediationAdNetwork.getAdName(), adPlacement, ERROR);
     }
 
     @Override
-    public void onAdLoaded(T loader) {
-        super.onAdLoaded(loader);
-        logEvent(adPlacement, SUCCESS);
+    public void onAdImpression(MediationAdNetwork mediationAdNetwork, MediationAdType adType) {
+        super.onAdImpression(mediationAdNetwork, adType);
+        logEvent(mediationAdNetwork.getAdName(), adPlacement, IMPRESS);
     }
 
     @Override
-    public void onAdClicked() {
-        super.onAdClicked();
-        logEvent(adPlacement, CLICK);
+    public void onAdLoaded(MediationAdNetwork mediationAdNetwork, MediationAdType adType, T mediationNetworkLoader) {
+        super.onAdLoaded(mediationAdNetwork, adType, mediationNetworkLoader);
+        logEvent(mediationAdNetwork.getAdName(), adPlacement, SUCCESS);
     }
 
-    @Override
-    public void onAdImpression() {
-        super.onAdImpression();
-        logEvent(adPlacement, IMPRESS);
+    private void logEvent(String prefix, String adPlacement, String event) {
+        MediationAdEventTracker.instance(context).log(prefix + "_" + adPlacement + "_" + event);
     }
 }

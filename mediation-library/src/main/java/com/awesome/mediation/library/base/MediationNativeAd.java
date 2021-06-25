@@ -3,6 +3,7 @@ package com.awesome.mediation.library.base;
 import android.graphics.drawable.Drawable;
 import android.view.ViewGroup;
 
+import com.awesome.mediation.library.MediationAdType;
 import com.awesome.mediation.library.MediationNativeAdView;
 
 public abstract class MediationNativeAd extends MediationNetworkLoader {
@@ -54,6 +55,11 @@ public abstract class MediationNativeAd extends MediationNetworkLoader {
 
     public Object getAdLoadedInstance() {
         return null;
+    }
+
+    @Override
+    protected MediationAdType getMediationAdType() {
+        return MediationAdType.NATIVE;
     }
 
     @Override

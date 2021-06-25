@@ -1,7 +1,7 @@
 package com.awesome.mediation.library;
 
 public enum MediationAdNetwork {
-    ADMOB("gad"), UNITY("unity"), APPODEAL("appo");
+    ADMOB("gad"), UNITY("unity"), APPODEAL("appo"), UNKNOWN("unknown");
 
     private final String adName;
 

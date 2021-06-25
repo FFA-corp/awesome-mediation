@@ -4,11 +4,17 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.awesome.mediation.library.MediationAdNetwork;
+import com.awesome.mediation.library.MediationAdType;
+import com.awesome.mediation.library.MediationInterstitialAdCache;
 import com.awesome.mediation.library.config.MediationAdConfig;
 import com.awesome.mediation.library.config.MediationAdManager;
 import com.awesome.mediation.library.config.MediationPrefs;
 import com.awesome.mediation.library.config.MediationRemoteConfig;
+import com.awesome.mediation.library.util.MediationAdLogger;
 import com.awesome.mediation.library.util.MediationDeviceUtil;
+
+import java.util.Locale;
 
 public abstract class MediationNetworkLoader {
     protected String adUnitId;
@@ -23,25 +29,74 @@ public abstract class MediationNetworkLoader {
 
     public boolean load(Context context) {
         this.adLoaded = false;
-        MediationAdManager instance = MediationAdManager.getInstance(context);
-        boolean canLoadAd = MediationDeviceUtil.isConnected(context) && !instance.getAppDelegate().isAppPurchased()
-                && MediationPrefs.instance(context).canRequestAd();
-
-        if (!canLoadAd) {
-            if (getMediationAdCallback() != null) {
-                getMediationAdCallback().onAdError("App purchased");
-            }
+        if (!canLoadAd(context)) {
+            onAdError("App purchased");
             return false;
         }
 
         MediationRemoteConfig config = new MediationAdConfig(context).getConfig();
         if (!config.isLivePlacement(adPositionName)) {
-            if (getMediationAdCallback() != null) {
-                getMediationAdCallback().onAdError("Placement \"%s\" is disable");
-            }
+            onAdError(String.format(Locale.US, "Placement \"%s\" is disable", adPositionName));
             return false;
         }
         return true;
+    }
+
+    protected void onAdError(String message) {
+        MediationAdLogger.logE(message);
+        if (getMediationAdCallback() != null) {
+            getMediationAdCallback().onAdError(getMediationNetwork(), getMediationAdType(), message);
+        }
+    }
+
+
+    protected void onAdClicked() {
+        MediationAdLogger.showCurrentMethodName();
+        if (getMediationAdCallback() != null) {
+            getMediationAdCallback().onAdClicked(getMediationNetwork(), getMediationAdType());
+        }
+    }
+
+    protected void onAdImpression() {
+        MediationAdLogger.showCurrentMethodName();
+        if (getMediationAdType() == MediationAdType.INTERSTITIAL) {
+            adShowed = true;
+            MediationInterstitialAdCache.instance().showing.postValue(true);
+        }
+        if (getMediationAdCallback() != null) {
+            getMediationAdCallback().onAdImpression(getMediationNetwork(), getMediationAdType());
+        }
+    }
+
+    protected void onAdClosed() {
+        MediationAdLogger.showCurrentMethodName();
+
+        if (getMediationAdType() == MediationAdType.INTERSTITIAL) {
+            MediationInterstitialAdCache instance = MediationInterstitialAdCache.instance();
+            instance.markShowAd(adPositionName);
+            instance.showing.setValue(false);
+            instance.showing.postValue(false);
+        }
+        if (getMediationAdCallback() != null) {
+            getMediationAdCallback().onAdClosed(getMediationNetwork(), getMediationAdType());
+        }
+    }
+
+    protected void onAdLoaded() {
+        MediationAdLogger.showCurrentMethodName();
+        adLoaded = true;
+    }
+
+    protected abstract MediationAdNetwork getMediationNetwork();
+
+    protected abstract MediationAdType getMediationAdType();
+
+    protected boolean canLoadAd(Context context) {
+        if (!MediationDeviceUtil.isConnected(context)
+                || MediationAdManager.getInstance(context).getAppDelegate().isAppPurchased()) {
+            return false;
+        }
+        return MediationPrefs.instance(context).canRequestAd();
     }
 
     public void setAdLoaderCallback(MediationAdCallback<MediationNetworkLoader> mediationAdCallback) {

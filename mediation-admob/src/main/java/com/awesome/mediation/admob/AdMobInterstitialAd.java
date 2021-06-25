@@ -8,6 +8,8 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 
 import com.awesome.mediation.admob.util.AdMobAdUtil;
+import com.awesome.mediation.library.MediationAdNetwork;
+import com.awesome.mediation.library.MediationAdType;
 import com.awesome.mediation.library.MediationInterstitialAdCache;
 import com.awesome.mediation.library.base.MediationAdCallback;
 import com.awesome.mediation.library.base.MediationInterstitialAd;
@@ -25,23 +27,18 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
 
-public class AdMobInterstitialAd extends MediationInterstitialAd {
+public class AdMobInterstitialAd extends MediationInterstitialAd<Activity> {
     private InterstitialAd interstitialAdObj;
 
     @Override
-    public void showAd(Context context) {
+    public void showAd(Activity context) {
         MediationAdLogger.logI("showAd");
-        if (context instanceof Activity) {
-            if (MediationAdManager.getInstance(context).getAppDelegate().isAppPurchased()) {
-                MediationAdLogger.logI("App purchased. Skip inter ad");
-                return;
-            }
-            this.adShowed = true;
-            MediationInterstitialAdCache.instance().showing.postValue(true);
+        if (super.canShowAd(context)) {
+            super.updateShowingState();
             this.interstitialAdObj.show(((Activity) context));
             return;
         }
-        MediationAdLogger.logE("invalid context");
+        MediationAdLogger.logI("Skip inter ad");
     }
 
     @Override
@@ -53,6 +50,20 @@ public class AdMobInterstitialAd extends MediationInterstitialAd {
         loadAd(context);
         return true;
     }
+
+    @Override
+    protected void onAdLoaded() {
+        super.onAdLoaded();
+        if (getMediationAdCallback() != null) {
+            getMediationAdCallback().onAdLoaded(getMediationNetwork(), MediationAdType.INTERSTITIAL, this);
+        }
+    }
+
+    @Override
+    protected MediationAdNetwork getMediationNetwork() {
+        return MediationAdNetwork.ADMOB;
+    }
+
 
     private void loadAd(Context context) {
 
@@ -80,39 +91,24 @@ public class AdMobInterstitialAd extends MediationInterstitialAd {
                             public void onAdFailedToShowFullScreenContent(@NotNull AdError adError) {
                                 super.onAdFailedToShowFullScreenContent(adError);
                                 MediationAdLogger.logD(adError.getMessage());
-                                if (getMediationAdCallback() != null) {
-                                    getMediationAdCallback().onAdError(adError.getMessage());
-                                }
+                                onAdError(adError.getMessage());
                             }
 
                             @Override
                             public void onAdShowedFullScreenContent() {
                                 super.onAdShowedFullScreenContent();
-                                MediationAdLogger.showCurrentMethodName();
-                                adShowed = true;
-                                instance.showing.postValue(true);
-                                if (getMediationAdCallback() != null) {
-                                    getMediationAdCallback().onAdImpression();
-                                }
+                                AdMobInterstitialAd.super.onAdImpression();
                             }
 
                             @Override
                             public void onAdDismissedFullScreenContent() {
                                 super.onAdDismissedFullScreenContent();
-                                MediationAdLogger.showCurrentMethodName();
-                                instance.markShowAd(adPositionName);
-                                instance.showing.setValue(false);
-                                instance.showing.postValue(false);
-                                if (getMediationAdCallback() != null) {
-                                    getMediationAdCallback().onAdClosed();
-                                }
+                                AdMobInterstitialAd.super.onAdClosed();
+                                interstitialAdObj = null;
                             }
 
                         });
-                        if (getMediationAdCallback() != null) {
-                            MediationAdLogger.logD("onAdLoaded");
-                            getMediationAdCallback().onAdLoaded(AdMobInterstitialAd.this);
-                        }
+                        AdMobInterstitialAd.this.onAdLoaded();
 
                         instance.saveInterstitialAd(adPositionName, AdMobInterstitialAd.this);
 
@@ -122,10 +118,13 @@ public class AdMobInterstitialAd extends MediationInterstitialAd {
                     public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
                         MediationAdLogger.logE(loadAdError.getMessage());
                         interstitialAdObj = null;
-                        if (getMediationAdCallback() != null) {
-                            getMediationAdCallback().onAdError(String.format(Locale.US, "Error %d: %s", loadAdError.getCode(), loadAdError.getMessage()));
-                        }
+                        onAdError(String.format(Locale.US, "Error %d: %s", loadAdError.getCode(), loadAdError.getMessage()));
                     }
                 });
+    }
+
+    @Override
+    public boolean isAdLoaded() {
+        return interstitialAdObj != null;
     }
 }

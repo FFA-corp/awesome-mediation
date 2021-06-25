@@ -6,6 +6,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 
 import com.awesome.mediation.admob.util.AdMobAdUtil;
+import com.awesome.mediation.library.MediationAdNetwork;
 import com.awesome.mediation.library.base.MediationRewardedAd;
 import com.awesome.mediation.library.base.RewardAdRewardListener;
 import com.awesome.mediation.library.util.MediationAdLogger;
@@ -50,27 +51,31 @@ public class AdMobRewardAd extends MediationRewardedAd {
                     @Override
                     public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
                         MediationAdLogger.logD(TAG, loadAdError.getMessage());
-                        onAdFail(loadAdError.getMessage());
+                        onAdError(loadAdError.getMessage());
                     }
 
                     @Override
                     public void onAdLoaded(@NonNull RewardedAd rewardedAd) {
                         AdMobRewardAd.this.rewardedAd = rewardedAd;
                         configCallbackForRewardAd();
-                        adLoaded = true;
-                        if (getMediationAdCallback() != null) {
-                            getMediationAdCallback().onAdLoaded(AdMobRewardAd.this);
-                        }
+                        AdMobRewardAd.this.onAdLoaded();
                         MediationAdLogger.logD(TAG, "Ad was loaded.");
                     }
                 });
         return true;
     }
 
-    private void onAdFail(String error) {
+    @Override
+    protected void onAdLoaded() {
+        super.onAdLoaded();
         if (getMediationAdCallback() != null) {
-            getMediationAdCallback().onAdError(error);
+            getMediationAdCallback().onAdLoaded(getMediationNetwork(), getMediationAdType(), AdMobRewardAd.this);
         }
+    }
+
+    @Override
+    protected MediationAdNetwork getMediationNetwork() {
+        return MediationAdNetwork.ADMOB;
     }
 
     private void configCallbackForRewardAd() {
@@ -79,23 +84,19 @@ public class AdMobRewardAd extends MediationRewardedAd {
             public void onAdShowedFullScreenContent() {
                 MediationAdLogger.logD(TAG, "Ad was shown.");
                 rewardedAd = null;
-                if (getMediationAdCallback() != null) {
-                    getMediationAdCallback().onAdImpression();
-                }
+                AdMobRewardAd.this.onAdImpression();
             }
 
             @Override
             public void onAdFailedToShowFullScreenContent(AdError adError) {
                 MediationAdLogger.logD(TAG, "Ad failed to show.");
-                onAdFail(adError.getMessage());
+                onAdError(adError.getMessage());
             }
 
             @Override
             public void onAdDismissedFullScreenContent() {
                 MediationAdLogger.logD(TAG, "Ad was dismissed.");
-                if (getMediationAdCallback() != null) {
-                    getMediationAdCallback().onAdClosed();
-                }
+                onAdClosed();
             }
         });
     }

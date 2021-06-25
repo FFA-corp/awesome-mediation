@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class MediationInterstitialAdCache {
     private static MediationInterstitialAdCache instance;
-    private final Map<String, MediationInterstitialAd> adCacheMap = new HashMap<>();
+    private final Map<String, MediationInterstitialAd<Activity>> adCacheMap = new HashMap<>();
     public MutableLiveData<Boolean> showing = new MutableLiveData<>();
 
     public static MediationInterstitialAdCache instance() {
@@ -23,7 +23,7 @@ public class MediationInterstitialAdCache {
         return instance;
     }
 
-    public void saveInterstitialAd(String position, MediationInterstitialAd ad) {
+    public void saveInterstitialAd(String position, MediationInterstitialAd<Activity> ad) {
         adCacheMap.put(position, ad);
     }
 
@@ -32,7 +32,7 @@ public class MediationInterstitialAdCache {
     }
 
     public boolean showAd(Activity activity, String position) {
-        MediationInterstitialAd interstitialAd = adCacheMap.get(position);
+        MediationInterstitialAd<Activity> interstitialAd = adCacheMap.get(position);
         if (interstitialAd != null) {
             interstitialAd.showAd(activity);
             return true;
@@ -48,7 +48,7 @@ public class MediationInterstitialAdCache {
         return adCacheMap.containsKey(adPosition);
     }
 
-    public MediationInterstitialAd getAd(String adPosition) {
+    public MediationInterstitialAd<Activity> getAd(String adPosition) {
         return adCacheMap.get(adPosition);
     }
 }

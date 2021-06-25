@@ -1,6 +1,5 @@
-package com.awesome.mediation.unity;
+package com.awesome.mediation.admob;
 
-import android.content.Context;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -9,9 +8,8 @@ import com.awesome.mediation.library.MediationAdNetwork;
 import com.awesome.mediation.library.base.MediationAdCallback;
 import com.awesome.mediation.library.base.MediationBannerAd;
 import com.awesome.mediation.library.base.MediationNetworkLoader;
-import com.awesome.mediation.library.util.MediationAdLogger;
 
-public class UnityBannerAd extends MediationBannerAd {
+public class AdMobBannerAd extends MediationBannerAd {
     @NonNull
     @Override
     public View getView() {
@@ -19,9 +17,8 @@ public class UnityBannerAd extends MediationBannerAd {
     }
 
     @Override
-    public boolean load(Context context) {
-        MediationAdLogger.logI("load");
-        return super.load(context);
+    protected MediationAdNetwork getMediationNetwork() {
+        return MediationAdNetwork.ADMOB;
     }
 
     @Override
@@ -31,10 +28,5 @@ public class UnityBannerAd extends MediationBannerAd {
         if (mediationAdCallback != null) {
             mediationAdCallback.onAdLoaded(getMediationNetwork(), getMediationAdType(), this);
         }
-    }
-
-    @Override
-    protected MediationAdNetwork getMediationNetwork() {
-        return MediationAdNetwork.UNITY;
     }
 }

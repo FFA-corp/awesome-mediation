@@ -1,12 +1,16 @@
 package com.awesome.mediautionu;
 
 import android.app.Application;
+import android.util.Log;
 
 import com.awesome.mediation.admob.AdMobAppOpenManager;
 import com.awesome.mediation.library.MediationAppDelegate;
 import com.awesome.mediation.library.config.MediationAdConfig;
 import com.awesome.mediation.library.config.MediationAdManager;
 import com.awesome.mediation.library.config.MediationRemoteConfig;
+import com.awesome.mediation.unity.UnityInitializer;
+import com.unity3d.ads.IUnityAdsInitializationListener;
+import com.unity3d.ads.UnityAds;
 
 public class MainApp extends Application {
     public AdMobAppOpenManager appOpenManager;
@@ -16,6 +20,17 @@ public class MainApp extends Application {
         super.onCreate();
         initMediationAds();
 //        initOpenApp();
+        UnityInitializer.getInstance().initializeUnityAds(this, "4185851", new IUnityAdsInitializationListener() {
+            @Override
+            public void onInitializationComplete() {
+                Log.i("superman", "onInitializationComplete: ");
+            }
+
+            @Override
+            public void onInitializationFailed(UnityAds.UnityAdsInitializationError error, String message) {
+                Log.i("superman", "onInitializationFailed: ");
+            }
+        });
     }
 
     private void initMediationAds() {
