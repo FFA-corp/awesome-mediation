@@ -19,11 +19,11 @@ public class UnityInterstitialAd extends MediationInterstitialAd<Activity> {
 
     @Override
     public void showAd(Activity context) {
-        MediationAdLogger.logI("showAd");
         if (!super.canShowAd(context)) {
-            MediationAdLogger.logI("Return ad");
+            MediationAdLogger.logI("Can't show ad");
             return;
         }
+
         super.updateShowingState();
         UnityAds.show(((Activity) context), adUnitId, new IUnityAdsShowListener() {
             @Override
