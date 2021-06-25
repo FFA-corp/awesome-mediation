@@ -146,7 +146,7 @@ public class AwesomeMediation {
         private final Context context;
 
         public Config(Context context) {
-            this.context = context.getApplicationContext();
+            this.context = context;
         }
 
         public Context getContext() {

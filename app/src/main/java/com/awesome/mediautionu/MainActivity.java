@@ -2,6 +2,7 @@ package com.awesome.mediautionu;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,6 +15,7 @@ import com.awesome.mediation.library.MediationAdNetwork;
 import com.awesome.mediation.library.MediationAdType;
 import com.awesome.mediation.library.MediationNativeAdView;
 import com.awesome.mediation.library.base.MediationAdCallback;
+import com.awesome.mediation.library.base.MediationBannerAd;
 import com.awesome.mediation.library.base.MediationInterstitialAd;
 import com.awesome.mediation.library.base.MediationNativeAd;
 import com.awesome.mediation.library.base.MediationNetworkLoader;
@@ -21,6 +23,7 @@ import com.awesome.mediation.library.base.MediationRewardedAd;
 import com.awesome.mediation.library.base.RewardAdRewardListener;
 import com.awesome.mediation.library.config.MediationAdConfig;
 import com.awesome.mediation.library.config.MediationRemoteConfig;
+import com.awesome.mediation.unity.UnityBannerAd;
 import com.awesome.mediation.unity.UnityInterstitialAd;
 import com.awesome.mediation.unity.UnityRewardedAd;
 
@@ -30,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
 
     private AwesomeMediation awesomeMediation;
     private MediationNativeAdView nativeAdView;
+    private MediationBannerAd mediationBannerAd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +45,31 @@ public class MainActivity extends AppCompatActivity {
 
 //        this.loadAdInter(mediationConfig);
         this.loadAdNative(mediationConfig);
-        this.loadReward(mediationConfig);
+        this.loadBanner(mediationConfig);
+//        this.loadReward(mediationConfig);
+    }
+
+    private void loadBanner(MediationRemoteConfig mediationConfig) {
+        AwesomeMediation.Config config = new AwesomeMediation.Config(this);
+        HashMap<MediationAdNetwork, MediationNetworkLoader> mediationNetworkConfigMap = new HashMap<>();
+        UnityBannerAd unityBannerAd = new UnityBannerAd();
+        unityBannerAd.setAdUnitId(mediationConfig.getUnityBannerAdUnit("bn_test", "Banner_Android"));
+        unityBannerAd.setAdPositionName("bn_test");
+        mediationNetworkConfigMap.put(MediationAdNetwork.UNITY, unityBannerAd);
+        config.setMediationNetworkConfigMap(mediationNetworkConfigMap)
+                .setPriority(MediationAdNetwork.UNITY, MediationAdNetwork.ADMOB, MediationAdNetwork.APPODEAL);
+
+        ViewGroup viewBanner = findViewById(R.id.view_banner);
+        AwesomeMediation awesomeMediation = new AwesomeMediation().setConfig(config);
+        awesomeMediation.setMediationAdCallback(new MediationAdCallback<MediationBannerAd>() {
+            @Override
+            public void onAdLoaded(MediationAdNetwork mediationAdNetwork, MediationAdType adType, MediationBannerAd mediationBannerAd) {
+                super.onAdLoaded(mediationAdNetwork, adType, mediationBannerAd);
+                MainActivity.this.mediationBannerAd = mediationBannerAd;
+                mediationBannerAd.showView(viewBanner);
+            }
+        });
+        awesomeMediation.load();
     }
 
     private void loadReward(MediationRemoteConfig mediationConfig) {
@@ -131,6 +159,10 @@ public class MainActivity extends AppCompatActivity {
 
         if (this.awesomeMediation != null) {
             this.awesomeMediation.destroy();
+        }
+
+        if (this.mediationBannerAd != null) {
+            this.mediationBannerAd.destroy();
         }
     }
 }
