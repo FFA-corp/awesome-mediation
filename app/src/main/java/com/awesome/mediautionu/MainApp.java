@@ -4,6 +4,7 @@ import android.app.Application;
 import android.util.Log;
 
 import com.awesome.mediation.admob.AdMobAppOpenManager;
+import com.awesome.mediation.appodeal.AppodealInitializer;
 import com.awesome.mediation.library.MediationAppDelegate;
 import com.awesome.mediation.library.config.MediationAdConfig;
 import com.awesome.mediation.library.config.MediationAdManager;
@@ -35,6 +36,7 @@ public class MainApp extends Application {
 
     private void initMediationAds() {
         MediationAdManager.init(this, BuildConfig.DEBUG);
+        AppodealInitializer.init("fee50c333ff3825fd6ad6d38cff78154de3025546d47a84f", true);
         MediationAdManager.getInstance(this)
                 .setAppDelegate(new MediationAppDelegate() {
                     @Override

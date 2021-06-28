@@ -10,7 +10,6 @@ import com.awesome.mediation.library.MediationAdNetwork;
 import com.awesome.mediation.library.base.MediationRewardedAd;
 import com.awesome.mediation.library.base.RewardAdRewardListener;
 import com.awesome.mediation.library.util.MediationAdLogger;
-import com.awesome.mediation.library.util.MediationDeviceUtil;
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.FullScreenContentCallback;
 import com.google.android.gms.ads.LoadAdError;
@@ -23,7 +22,7 @@ public class AdMobRewardAd extends MediationRewardedAd {
 
     @Override
     public void showAd(Context context, RewardAdRewardListener rewardAdRewardListener) {
-        if (!MediationDeviceUtil.isConnected(context)) {
+        if (!canShowAd(context)) {
             return;
         }
         if (context instanceof Activity) {

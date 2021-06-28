@@ -156,6 +156,7 @@ public class MediationNativeAdView extends LinearLayout {
 
         this.hideLoadingState(tvNativeTitle, tvNativeBody, btNativeCta, viewIcon, layoutMediaView);
 
+        Log.i("superman", "show: " + unifiedNativeAd.getAdTitle());
         Context context = getContext();
         FrameLayout nativeAdView = new FrameLayout(context);
         Class<?> adContainerClass = unifiedNativeAd.getAdContainerClass();
@@ -174,17 +175,23 @@ public class MediationNativeAdView extends LinearLayout {
             this.layoutMediaView.addView(adMediaView, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
             this.layoutMediaView.setVisibility(VISIBLE);
         }
-        ImageView admobIcon = new ImageView(context);
-        this.viewIcon.addView(admobIcon, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-        Drawable adIconDrawable = unifiedNativeAd.getAdIconDrawable();
-        if (adIconDrawable != null) {
-            admobIcon.setImageDrawable(adIconDrawable);
+        ImageView adIconLogoView = new ImageView(context);
+        ViewGroup adIconView = unifiedNativeAd.getAdIconView();
+        if (adIconView != null) {
+            this.viewIcon.addView(adIconView, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         } else {
-            String adIconUrl = unifiedNativeAd.getAdIconUrl();
-            if (!TextUtils.isEmpty(adIconUrl)) {
-                Picasso.get().load(adIconUrl).into(admobIcon);
+            this.viewIcon.addView(adIconLogoView, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+            Drawable adIconDrawable = unifiedNativeAd.getAdIconDrawable();
+            if (adIconDrawable != null) {
+                adIconLogoView.setImageDrawable(adIconDrawable);
+            } else {
+                String adIconUrl = unifiedNativeAd.getAdIconUrl();
+                if (!TextUtils.isEmpty(adIconUrl)) {
+                    Picasso.get().load(adIconUrl).into(adIconLogoView);
+                }
             }
         }
+
         ViewGroup adAdChoiceView = unifiedNativeAd.getAdAdChoiceView();
         if (adAdChoiceView != null) {
             layoutAdChoice.addView(adAdChoiceView);

@@ -11,6 +11,10 @@ import com.awesome.mediation.admob.AdMobBannerAd;
 import com.awesome.mediation.admob.AdMobInterstitialAd;
 import com.awesome.mediation.admob.AdMobNativeAd;
 import com.awesome.mediation.admob.AdMobRewardAd;
+import com.awesome.mediation.appodeal.AppodealBannerAd;
+import com.awesome.mediation.appodeal.AppodealInterstitialAd;
+import com.awesome.mediation.appodeal.AppodealNativeAd;
+import com.awesome.mediation.appodeal.AppodealRewardAd;
 import com.awesome.mediation.library.AwesomeMediation;
 import com.awesome.mediation.library.MediationAdNetwork;
 import com.awesome.mediation.library.MediationAdType;
@@ -35,18 +39,20 @@ public class MainActivity extends AppCompatActivity {
     private AwesomeMediation awesomeMediation;
     private MediationNativeAdView nativeAdView;
     private MediationBannerAd mediationBannerAd;
+    private MediationNativeAd nativeAd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         nativeAdView = findViewById(R.id.native_ad_view);
         MediationRemoteConfig mediationConfig = new MediationAdConfig(this).getConfig();
 
 //        this.loadAdInter(mediationConfig);
         this.loadAdNative(mediationConfig);
-        this.loadBanner(mediationConfig);
+//        this.loadBanner(mediationConfig);
 //        this.loadReward(mediationConfig);
     }
 
@@ -64,8 +70,12 @@ public class MainActivity extends AppCompatActivity {
         adMobBannerAd.setAdPositionName("bn_test");
         mediationNetworkConfigMap.put(MediationAdNetwork.ADMOB, adMobBannerAd);
 
+        AppodealBannerAd appodealBannerAd = new AppodealBannerAd();
+        appodealBannerAd.setAdPositionName("bn_test");
+        mediationNetworkConfigMap.put(MediationAdNetwork.APPODEAL, appodealBannerAd);
+
         config.setMediationNetworkConfigMap(mediationNetworkConfigMap)
-                .setPriority(MediationAdNetwork.ADMOB, MediationAdNetwork.UNITY, MediationAdNetwork.APPODEAL);
+                .setPriority(MediationAdNetwork.APPODEAL, MediationAdNetwork.ADMOB, MediationAdNetwork.UNITY);
 
         ViewGroup viewBanner = findViewById(R.id.view_banner);
         AwesomeMediation awesomeMediation = new AwesomeMediation().setConfig(config);
@@ -93,9 +103,12 @@ public class MainActivity extends AppCompatActivity {
         unityRewardedAd.setAdPositionName("rw_test");
         mediationNetworkConfigMap.put(MediationAdNetwork.UNITY, unityRewardedAd);
 
+        AppodealRewardAd appodealRewardAd = new AppodealRewardAd();
+        appodealRewardAd.setAdPositionName("rw_test");
+        mediationNetworkConfigMap.put(MediationAdNetwork.APPODEAL, appodealRewardAd);
 
         config.setMediationNetworkConfigMap(mediationNetworkConfigMap)
-                .setPriority(MediationAdNetwork.UNITY, MediationAdNetwork.ADMOB, MediationAdNetwork.APPODEAL);
+                .setPriority(MediationAdNetwork.APPODEAL, MediationAdNetwork.UNITY, MediationAdNetwork.ADMOB);
 
         AwesomeMediation awesomeMediation = new AwesomeMediation().setConfig(config);
         awesomeMediation.setMediationAdCallback(new MediationAdCallback<MediationRewardedAd>() {
@@ -116,19 +129,26 @@ public class MainActivity extends AppCompatActivity {
     private void loadAdNative(MediationRemoteConfig mediationConfig) {
         AwesomeMediation.Config config = new AwesomeMediation.Config(this);
         HashMap<MediationAdNetwork, MediationNetworkLoader> mediationNetworkConfigMap = new HashMap<>();
+
         AdMobNativeAd adMobNativeAd = new AdMobNativeAd();
         adMobNativeAd.setAdUnitId(mediationConfig.getAdMobNativeAdUnit("nt_test", "ca-app-pub-3940256099942544/1044960115"));
         adMobNativeAd.setAdPositionName("nt_test");
         mediationNetworkConfigMap.put(MediationAdNetwork.ADMOB, adMobNativeAd);
+
+        AppodealNativeAd appodealNative = new AppodealNativeAd();
+        appodealNative.setAdPositionName("nt_test");
+        mediationNetworkConfigMap.put(MediationAdNetwork.APPODEAL, appodealNative);
+
         config.setMediationNetworkConfigMap(mediationNetworkConfigMap)
-                .setPriority(MediationAdNetwork.ADMOB, MediationAdNetwork.APPODEAL, MediationAdNetwork.UNITY);
+                .setPriority(MediationAdNetwork.APPODEAL, MediationAdNetwork.ADMOB, MediationAdNetwork.UNITY);
 
         AwesomeMediation awesomeMediation = new AwesomeMediation().setConfig(config);
         awesomeMediation.setMediationAdCallback(new MediationAdCallback<MediationNativeAd>() {
             @Override
-            public void onAdLoaded(MediationAdNetwork mediationAdNetwork, MediationAdType adType, MediationNativeAd mediationNetworkLoader) {
-                super.onAdLoaded(mediationAdNetwork, adType, mediationNetworkLoader);
-                mediationNetworkLoader.showAd(nativeAdView);
+            public void onAdLoaded(MediationAdNetwork mediationAdNetwork, MediationAdType adType, MediationNativeAd nativeAd) {
+                super.onAdLoaded(mediationAdNetwork, adType, nativeAd);
+                nativeAd.showAd(nativeAdView);
+                MainActivity.this.nativeAd = nativeAd;
             }
         });
         awesomeMediation.load();
@@ -147,8 +167,12 @@ public class MainActivity extends AppCompatActivity {
         adMobInterstitialAd.setAdPositionName("it_test");
         mediationNetworkConfigMap.put(MediationAdNetwork.ADMOB, adMobInterstitialAd);
 
+        AppodealInterstitialAd appodealInterstitialAd = new AppodealInterstitialAd();
+        appodealInterstitialAd.setAdPositionName("it_test");
+        mediationNetworkConfigMap.put(MediationAdNetwork.APPODEAL, appodealInterstitialAd);
+
         config.setMediationNetworkConfigMap(mediationNetworkConfigMap)
-                .setPriority(MediationAdNetwork.UNITY, MediationAdNetwork.ADMOB, MediationAdNetwork.APPODEAL);
+                .setPriority(MediationAdNetwork.APPODEAL, MediationAdNetwork.UNITY, MediationAdNetwork.ADMOB);
 
         this.awesomeMediation = new AwesomeMediation().setConfig(config);
         this.awesomeMediation.setMediationAdCallback(new MediationAdCallback<MediationInterstitialAd<Activity>>() {
@@ -156,6 +180,12 @@ public class MainActivity extends AppCompatActivity {
             public void onAdLoaded(MediationAdNetwork mediationAdNetwork, MediationAdType adType, MediationInterstitialAd<Activity> mediationNetworkLoader) {
                 super.onAdLoaded(mediationAdNetwork, adType, mediationNetworkLoader);
                 mediationNetworkLoader.showAd(MainActivity.this);
+            }
+
+            @Override
+            public void onAdError(MediationAdNetwork mediationAdNetwork, MediationAdType adType, String errorMessage) {
+                super.onAdError(mediationAdNetwork, adType, errorMessage);
+                Toast.makeText(MainActivity.this, mediationAdNetwork.getAdName() + " " + errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
         this.awesomeMediation.load();
@@ -171,6 +201,10 @@ public class MainActivity extends AppCompatActivity {
 
         if (this.mediationBannerAd != null) {
             this.mediationBannerAd.destroy();
+        }
+
+        if (nativeAd != null) {
+            nativeAd.destroy();
         }
     }
 }

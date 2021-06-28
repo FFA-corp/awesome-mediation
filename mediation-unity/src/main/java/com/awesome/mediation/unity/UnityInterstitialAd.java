@@ -2,14 +2,11 @@ package com.awesome.mediation.unity;
 
 import android.app.Activity;
 import android.content.Context;
-import android.util.Log;
 
 import com.awesome.mediation.library.MediationAdNetwork;
-import com.awesome.mediation.library.MediationInterstitialAdCache;
 import com.awesome.mediation.library.base.MediationAdCallback;
 import com.awesome.mediation.library.base.MediationInterstitialAd;
 import com.awesome.mediation.library.base.MediationNetworkLoader;
-import com.awesome.mediation.library.config.MediationAdManager;
 import com.awesome.mediation.library.util.MediationAdLogger;
 import com.unity3d.ads.IUnityAdsLoadListener;
 import com.unity3d.ads.IUnityAdsShowListener;

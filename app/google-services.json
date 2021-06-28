@@ -7,6 +7,35 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:464540194363:android:fde997be6184cab76e6e1e",
+        "android_client_info": {
+          "package_name": "com.appodeal.test"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "464540194363-1mv9fsjb5r1o3gph2nlsm4jl3g3qeor0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCCF4F_wWhF-8MyRzxzRPLgARahsgx3Qyk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "464540194363-1mv9fsjb5r1o3gph2nlsm4jl3g3qeor0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:464540194363:android:c82dde89e433ea8a6e6e1e",
         "android_client_info": {
           "package_name": "com.awesome.mediautionu"

@@ -142,5 +142,12 @@ public class AdMobNativeAd extends MediationNativeAd {
     public Class<?> getAdContainerClass() {
         return NativeAdView.class;
     }
+
+    @Override
+    public void destroy() {
+        if (loadedAd != null) {
+            loadedAd.destroy();
+        }
+    }
 }
 

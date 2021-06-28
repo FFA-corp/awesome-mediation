@@ -1,5 +1,6 @@
 package com.awesome.mediation.library.base;
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.ViewGroup;
 
@@ -14,11 +15,16 @@ public abstract class MediationNativeAd extends MediationNetworkLoader {
     protected ViewGroup adMediaView;
     protected ViewGroup adAdChoiceView;
     protected Drawable adIconDrawable;
+    protected ViewGroup adIconView;
     protected Class<?> adContainerClass;
 
     public abstract void showAd(MediationNativeAdView mediationNativeAdView);
 
-    protected void populateDataFromAdLoadedInstance() {
+    protected void populateDataFromAdLoadedInstance(Context context) {
+    }
+
+    public ViewGroup getAdIconView() {
+        return adIconView;
     }
 
     public String getAdTitle() {
@@ -71,4 +77,6 @@ public abstract class MediationNativeAd extends MediationNetworkLoader {
                 ", adIconUrl='" + adIconUrl + '\'' +
                 '}';
     }
+
+    public abstract void destroy();
 }

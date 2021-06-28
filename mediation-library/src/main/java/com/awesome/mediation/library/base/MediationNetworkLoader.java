@@ -20,15 +20,17 @@ public abstract class MediationNetworkLoader {
     protected String adPositionName;
     protected boolean adShowed = false;
     protected boolean adLoaded = false;
+    protected Context context;
 
     public void setAdUnitId(String adUnitId) {
         this.adUnitId = adUnitId;
     }
 
     public boolean load(Context context) {
+        this.context = context;
         this.adLoaded = false;
         if (!canLoadAd(context)) {
-            onAdError("App purchased");
+            onAdError("Can't load ad");
             return false;
         }
 
@@ -41,7 +43,7 @@ public abstract class MediationNetworkLoader {
     }
 
     protected void onAdError(String message) {
-        MediationAdLogger.logE(message);
+        MediationAdLogger.logE(getMediationNetwork() + " " + adPositionName + ": " + message);
         if (getMediationAdCallback() != null) {
             getMediationAdCallback().onAdError(getMediationNetwork(), getMediationAdType(), message);
         }
@@ -92,7 +94,7 @@ public abstract class MediationNetworkLoader {
     }
 
     protected void onAdLoaded() {
-        MediationAdLogger.showCurrentMethodName();
+        MediationAdLogger.logD(getMediationNetwork() + " " + adPositionName);
         adLoaded = true;
     }
 

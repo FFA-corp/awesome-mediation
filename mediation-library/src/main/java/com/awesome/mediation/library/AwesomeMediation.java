@@ -85,7 +85,9 @@ public class AwesomeMediation {
                 if (destroyed) {
                     return;
                 }
-                mediationNetworkLoaderQueues.removeFirst();
+                if (!mediationNetworkLoaderQueues.isEmpty()) {
+                    mediationNetworkLoaderQueues.removeFirst();
+                }
                 if (mediationNetworkLoaderQueues.isEmpty()) {
                     if (callback != null) {
                         callback.onAdError(mediationAdNetwork, adType, errorMessage);
@@ -112,7 +114,9 @@ public class AwesomeMediation {
                 if (callback != null) {
                     callback.onAdLoaded(mediationAdNetwork, adType, mediationNetworkLoader);
                 }
-                mediationNetworkLoaderQueues.removeFirst();
+                if (!mediationNetworkLoaderQueues.isEmpty()) {
+                    mediationNetworkLoaderQueues.removeFirst();
+                }
             }
         });
         mediationNetworkLoader.load(config.context);
@@ -131,7 +135,7 @@ public class AwesomeMediation {
         mediationNetworkLoaderQueues.clear();
     }
 
-    private final LinkedList<MediationNetworkLoader> mediationNetworkLoaderQueues = new LinkedList<>();
+    private LinkedList<MediationNetworkLoader> mediationNetworkLoaderQueues = new LinkedList<>();
 
     private void addAdNetworkRequestToQueue(MediationNetworkLoader mediationNetworkLoader) {
         if (mediationNetworkLoaderQueues.contains(mediationNetworkLoader)) {

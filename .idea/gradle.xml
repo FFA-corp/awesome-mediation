@@ -12,6 +12,7 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/mediation-admob" />
+            <option value="$PROJECT_DIR$/mediation-appodeal" />
             <option value="$PROJECT_DIR$/mediation-library" />
             <option value="$PROJECT_DIR$/mediation-unity" />
           </set>
