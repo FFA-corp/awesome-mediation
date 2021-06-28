@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.awesome.mediation.admob.AdMobBannerAd;
 import com.awesome.mediation.admob.AdMobInterstitialAd;
 import com.awesome.mediation.admob.AdMobNativeAd;
 import com.awesome.mediation.admob.AdMobRewardAd;
@@ -52,12 +53,19 @@ public class MainActivity extends AppCompatActivity {
     private void loadBanner(MediationRemoteConfig mediationConfig) {
         AwesomeMediation.Config config = new AwesomeMediation.Config(this);
         HashMap<MediationAdNetwork, MediationNetworkLoader> mediationNetworkConfigMap = new HashMap<>();
+
         UnityBannerAd unityBannerAd = new UnityBannerAd();
         unityBannerAd.setAdUnitId(mediationConfig.getUnityBannerAdUnit("bn_test", "Banner_Android"));
         unityBannerAd.setAdPositionName("bn_test");
         mediationNetworkConfigMap.put(MediationAdNetwork.UNITY, unityBannerAd);
+
+        AdMobBannerAd adMobBannerAd = new AdMobBannerAd();
+        adMobBannerAd.setAdUnitId(mediationConfig.getUnityBannerAdUnit("bn_test", "ca-app-pub-3940256099942544/6300978111"));
+        adMobBannerAd.setAdPositionName("bn_test");
+        mediationNetworkConfigMap.put(MediationAdNetwork.ADMOB, adMobBannerAd);
+
         config.setMediationNetworkConfigMap(mediationNetworkConfigMap)
-                .setPriority(MediationAdNetwork.UNITY, MediationAdNetwork.ADMOB, MediationAdNetwork.APPODEAL);
+                .setPriority(MediationAdNetwork.ADMOB, MediationAdNetwork.UNITY, MediationAdNetwork.APPODEAL);
 
         ViewGroup viewBanner = findViewById(R.id.view_banner);
         AwesomeMediation awesomeMediation = new AwesomeMediation().setConfig(config);
