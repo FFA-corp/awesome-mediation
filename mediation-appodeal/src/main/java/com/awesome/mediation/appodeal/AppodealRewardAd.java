@@ -79,7 +79,7 @@ public class AppodealRewardAd extends MediationRewardedAd {
     protected void onAdLoaded() {
         super.onAdLoaded();
         if (getMediationAdCallback() != null) {
-            getMediationAdCallback().onAdLoaded(getMediationNetwork(), getMediationAdType(), this);
+            getMediationAdCallback().onAdLoaded(adPositionName, getMediationNetwork(), getMediationAdType(), this);
         }
     }
 

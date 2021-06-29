@@ -68,7 +68,7 @@ public class AdMobRewardAd extends MediationRewardedAd {
     protected void onAdLoaded() {
         super.onAdLoaded();
         if (getMediationAdCallback() != null) {
-            getMediationAdCallback().onAdLoaded(getMediationNetwork(), getMediationAdType(), AdMobRewardAd.this);
+            getMediationAdCallback().onAdLoaded(adPositionName, getMediationNetwork(), getMediationAdType(), AdMobRewardAd.this);
         }
     }
 

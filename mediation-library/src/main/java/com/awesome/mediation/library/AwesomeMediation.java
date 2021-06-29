@@ -64,24 +64,24 @@ public class AwesomeMediation {
         MediationNetworkLoader mediationNetworkLoader = mediationNetworkLoaderQueues.getFirst();
         mediationNetworkLoader.setAdLoaderCallback(new MediationAdCallback<MediationNetworkLoader>() {
             @Override
-            public void onAdClicked(MediationAdNetwork mediationAdNetwork, MediationAdType adType) {
-                super.onAdClicked(mediationAdNetwork, adType);
+            public void onAdClicked(String positionName, MediationAdNetwork mediationAdNetwork, MediationAdType adType) {
+                super.onAdClicked(positionName, mediationAdNetwork, adType);
                 if (callback != null) {
-                    callback.onAdClicked(mediationAdNetwork, adType);
+                    callback.onAdClicked(positionName, mediationAdNetwork, adType);
                 }
             }
 
             @Override
-            public void onAdClosed(MediationAdNetwork mediationAdNetwork, MediationAdType adType) {
-                super.onAdClosed(mediationAdNetwork, adType);
+            public void onAdClosed(String positionName, MediationAdNetwork mediationAdNetwork, MediationAdType adType) {
+                super.onAdClosed(positionName, mediationAdNetwork, adType);
                 if (callback != null) {
-                    callback.onAdImpression(mediationAdNetwork, adType);
+                    callback.onAdImpression(positionName, mediationAdNetwork, adType);
                 }
             }
 
             @Override
-            public void onAdError(MediationAdNetwork mediationAdNetwork, MediationAdType adType, String errorMessage) {
-                super.onAdError(mediationAdNetwork, adType, errorMessage);
+            public void onAdError(String positionName, MediationAdNetwork mediationAdNetwork, MediationAdType adType, String errorMessage) {
+                super.onAdError(positionName, mediationAdNetwork, adType, errorMessage);
                 if (destroyed) {
                     return;
                 }
@@ -90,7 +90,7 @@ public class AwesomeMediation {
                 }
                 if (mediationNetworkLoaderQueues.isEmpty()) {
                     if (callback != null) {
-                        callback.onAdError(mediationAdNetwork, adType, errorMessage);
+                        callback.onAdError(positionName, mediationAdNetwork, adType, errorMessage);
                     }
                     return;
                 }
@@ -98,21 +98,21 @@ public class AwesomeMediation {
             }
 
             @Override
-            public void onAdImpression(MediationAdNetwork mediationAdNetwork, MediationAdType adType) {
-                super.onAdImpression(mediationAdNetwork, adType);
+            public void onAdImpression(String positionName, MediationAdNetwork mediationAdNetwork, MediationAdType adType) {
+                super.onAdImpression(positionName, mediationAdNetwork, adType);
                 if (callback != null) {
-                    callback.onAdImpression(mediationAdNetwork, adType);
+                    callback.onAdImpression(positionName, mediationAdNetwork, adType);
                 }
             }
 
             @Override
-            public void onAdLoaded(MediationAdNetwork mediationAdNetwork, MediationAdType adType, MediationNetworkLoader mediationNetworkLoader) {
-                super.onAdLoaded(mediationAdNetwork, adType, mediationNetworkLoader);
+            public void onAdLoaded(String positionName, MediationAdNetwork mediationAdNetwork, MediationAdType adType, MediationNetworkLoader mediationNetworkLoader) {
+                super.onAdLoaded(positionName, mediationAdNetwork, adType, mediationNetworkLoader);
                 if (destroyed) {
                     return;
                 }
                 if (callback != null) {
-                    callback.onAdLoaded(mediationAdNetwork, adType, mediationNetworkLoader);
+                    callback.onAdLoaded(positionName, mediationAdNetwork, adType, mediationNetworkLoader);
                 }
                 if (!mediationNetworkLoaderQueues.isEmpty()) {
                     mediationNetworkLoaderQueues.removeFirst();

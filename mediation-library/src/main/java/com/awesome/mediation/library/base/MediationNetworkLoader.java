@@ -45,7 +45,7 @@ public abstract class MediationNetworkLoader {
     protected void onAdError(String message) {
         MediationAdLogger.logE(getMediationNetwork() + " " + adPositionName + ": " + message);
         if (getMediationAdCallback() != null) {
-            getMediationAdCallback().onAdError(getMediationNetwork(), getMediationAdType(), message);
+            getMediationAdCallback().onAdError(adPositionName, getMediationNetwork(), getMediationAdType(), message);
         }
     }
 
@@ -64,7 +64,7 @@ public abstract class MediationNetworkLoader {
     protected void onAdClicked() {
         MediationAdLogger.showCurrentMethodName();
         if (getMediationAdCallback() != null) {
-            getMediationAdCallback().onAdClicked(getMediationNetwork(), getMediationAdType());
+            getMediationAdCallback().onAdClicked(adPositionName, getMediationNetwork(), getMediationAdType());
         }
     }
 
@@ -75,7 +75,7 @@ public abstract class MediationNetworkLoader {
             MediationInterstitialAdCache.instance().showing.postValue(true);
         }
         if (getMediationAdCallback() != null) {
-            getMediationAdCallback().onAdImpression(getMediationNetwork(), getMediationAdType());
+            getMediationAdCallback().onAdImpression(adPositionName, getMediationNetwork(), getMediationAdType());
         }
     }
 
@@ -89,7 +89,7 @@ public abstract class MediationNetworkLoader {
             instance.showing.postValue(false);
         }
         if (getMediationAdCallback() != null) {
-            getMediationAdCallback().onAdClosed(getMediationNetwork(), getMediationAdType());
+            getMediationAdCallback().onAdClosed(adPositionName, getMediationNetwork(), getMediationAdType());
         }
     }
 

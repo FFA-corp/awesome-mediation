@@ -50,7 +50,7 @@ public class UnityBannerAd extends MediationBannerAd {
         super.onAdLoaded();
         MediationAdCallback<MediationNetworkLoader> mediationAdCallback = getMediationAdCallback();
         if (mediationAdCallback != null) {
-            mediationAdCallback.onAdLoaded(getMediationNetwork(), getMediationAdType(), this);
+            mediationAdCallback.onAdLoaded(adPositionName, getMediationNetwork(), getMediationAdType(), this);
         }
     }
 

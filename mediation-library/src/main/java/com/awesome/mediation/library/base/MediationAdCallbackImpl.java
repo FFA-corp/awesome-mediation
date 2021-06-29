@@ -28,33 +28,33 @@ public class MediationAdCallbackImpl<T extends MediationNetworkLoader> extends M
     }
 
     @Override
-    public void onAdClicked(MediationAdNetwork mediationAdNetwork, MediationAdType adType) {
-        super.onAdClicked(mediationAdNetwork, adType);
+    public void onAdClicked(String positionName, MediationAdNetwork mediationAdNetwork, MediationAdType adType) {
+        super.onAdClicked(positionName, mediationAdNetwork, adType);
         logEvent(mediationAdNetwork.getAdName(), adPlacement, CLICK);
     }
 
     @Override
-    public void onAdClosed(MediationAdNetwork mediationAdNetwork, MediationAdType adType) {
-        super.onAdClosed(mediationAdNetwork, adType);
+    public void onAdClosed(String positionName, MediationAdNetwork mediationAdNetwork, MediationAdType adType) {
+        super.onAdClosed(positionName, mediationAdNetwork, adType);
         logEvent(mediationAdNetwork.getAdName(), adPlacement, DISMISS);
     }
 
     @Override
-    public void onAdError(MediationAdNetwork mediationAdNetwork, MediationAdType adType, String errorMessage) {
-        super.onAdError(mediationAdNetwork, adType, errorMessage);
+    public void onAdError(String positionName, MediationAdNetwork mediationAdNetwork, MediationAdType adType, String errorMessage) {
+        super.onAdError(positionName, mediationAdNetwork, adType, errorMessage);
         MediationAdLogger.logE("Error " + errorMessage);
         logEvent(mediationAdNetwork.getAdName(), adPlacement, ERROR);
     }
 
     @Override
-    public void onAdImpression(MediationAdNetwork mediationAdNetwork, MediationAdType adType) {
-        super.onAdImpression(mediationAdNetwork, adType);
+    public void onAdImpression(String positionName, MediationAdNetwork mediationAdNetwork, MediationAdType adType) {
+        super.onAdImpression(positionName, mediationAdNetwork, adType);
         logEvent(mediationAdNetwork.getAdName(), adPlacement, IMPRESS);
     }
 
     @Override
-    public void onAdLoaded(MediationAdNetwork mediationAdNetwork, MediationAdType adType, T mediationNetworkLoader) {
-        super.onAdLoaded(mediationAdNetwork, adType, mediationNetworkLoader);
+    public void onAdLoaded(String positionName, MediationAdNetwork mediationAdNetwork, MediationAdType adType, T mediationNetworkLoader) {
+        super.onAdLoaded(positionName, mediationAdNetwork, adType, mediationNetworkLoader);
         logEvent(mediationAdNetwork.getAdName(), adPlacement, SUCCESS);
     }
 

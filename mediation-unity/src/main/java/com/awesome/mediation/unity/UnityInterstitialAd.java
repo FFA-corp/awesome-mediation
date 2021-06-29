@@ -69,7 +69,7 @@ public class UnityInterstitialAd extends MediationInterstitialAd<Activity> {
         super.onAdLoaded();
         MediationAdCallback<MediationNetworkLoader> mediationAdCallback = getMediationAdCallback();
         if (mediationAdCallback != null) {
-            mediationAdCallback.onAdLoaded(getMediationNetwork(), getMediationAdType(), UnityInterstitialAd.this);
+            mediationAdCallback.onAdLoaded(adPositionName, getMediationNetwork(), getMediationAdType(), UnityInterstitialAd.this);
         }
     }
 

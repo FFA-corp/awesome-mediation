@@ -85,7 +85,7 @@ public class AppodealNativeAd extends MediationNativeAd {
         }
         super.onAdLoaded();
         if (getMediationAdCallback() != null) {
-            getMediationAdCallback().onAdLoaded(getMediationNetwork(), getMediationAdType(), this);
+            getMediationAdCallback().onAdLoaded(adPositionName, getMediationNetwork(), getMediationAdType(), this);
         }
         this.loadedAd = nativeAds.get(0);
         super.adTitle = loadedAd.getTitle();

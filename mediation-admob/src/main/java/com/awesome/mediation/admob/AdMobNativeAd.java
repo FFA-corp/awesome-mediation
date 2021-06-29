@@ -42,7 +42,7 @@ public class AdMobNativeAd extends MediationNativeAd {
     @Override
     protected void onAdLoaded() {
         super.onAdLoaded();
-        getMediationAdCallback().onAdLoaded(getMediationNetwork(), getMediationAdType(), this);
+        getMediationAdCallback().onAdLoaded(adPositionName, getMediationNetwork(), getMediationAdType(), this);
     }
 
     @Override

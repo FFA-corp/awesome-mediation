@@ -14,7 +14,6 @@ import com.awesome.mediation.library.MediationInterstitialAdCache;
 import com.awesome.mediation.library.base.MediationAdCallback;
 import com.awesome.mediation.library.base.MediationInterstitialAd;
 import com.awesome.mediation.library.base.MediationNetworkLoader;
-import com.awesome.mediation.library.config.MediationAdManager;
 import com.awesome.mediation.library.config.MediationPrefs;
 import com.awesome.mediation.library.util.MediationAdLogger;
 import com.google.android.gms.ads.AdError;
@@ -55,7 +54,7 @@ public class AdMobInterstitialAd extends MediationInterstitialAd<Activity> {
     protected void onAdLoaded() {
         super.onAdLoaded();
         if (getMediationAdCallback() != null) {
-            getMediationAdCallback().onAdLoaded(getMediationNetwork(), MediationAdType.INTERSTITIAL, this);
+            getMediationAdCallback().onAdLoaded(adPositionName, getMediationNetwork(), MediationAdType.INTERSTITIAL, this);
         }
     }
 

@@ -81,8 +81,8 @@ public class MainActivity extends AppCompatActivity {
         AwesomeMediation awesomeMediation = new AwesomeMediation().setConfig(config);
         awesomeMediation.setMediationAdCallback(new MediationAdCallback<MediationBannerAd>() {
             @Override
-            public void onAdLoaded(MediationAdNetwork mediationAdNetwork, MediationAdType adType, MediationBannerAd mediationBannerAd) {
-                super.onAdLoaded(mediationAdNetwork, adType, mediationBannerAd);
+            public void onAdLoaded(String positionName, MediationAdNetwork mediationAdNetwork, MediationAdType adType, MediationBannerAd mediationBannerAd) {
+                super.onAdLoaded(positionName, mediationAdNetwork, adType, mediationBannerAd);
                 MainActivity.this.mediationBannerAd = mediationBannerAd;
                 mediationBannerAd.showView(viewBanner);
             }
@@ -113,8 +113,8 @@ public class MainActivity extends AppCompatActivity {
         AwesomeMediation awesomeMediation = new AwesomeMediation().setConfig(config);
         awesomeMediation.setMediationAdCallback(new MediationAdCallback<MediationRewardedAd>() {
             @Override
-            public void onAdLoaded(MediationAdNetwork mediationAdNetwork, MediationAdType adType, MediationRewardedAd mediationNetworkLoader) {
-                super.onAdLoaded(mediationAdNetwork, adType, mediationNetworkLoader);
+            public void onAdLoaded(String positionName, MediationAdNetwork mediationAdNetwork, MediationAdType adType, MediationRewardedAd mediationNetworkLoader) {
+                super.onAdLoaded(positionName, mediationAdNetwork, adType, mediationNetworkLoader);
                 mediationNetworkLoader.showAd(MainActivity.this, new RewardAdRewardListener() {
                     @Override
                     public void onUserEarnedReward() {
@@ -145,8 +145,8 @@ public class MainActivity extends AppCompatActivity {
         AwesomeMediation awesomeMediation = new AwesomeMediation().setConfig(config);
         awesomeMediation.setMediationAdCallback(new MediationAdCallback<MediationNativeAd>() {
             @Override
-            public void onAdLoaded(MediationAdNetwork mediationAdNetwork, MediationAdType adType, MediationNativeAd nativeAd) {
-                super.onAdLoaded(mediationAdNetwork, adType, nativeAd);
+            public void onAdLoaded(String positionName, MediationAdNetwork mediationAdNetwork, MediationAdType adType, MediationNativeAd nativeAd) {
+                super.onAdLoaded(positionName, mediationAdNetwork, adType, nativeAd);
                 nativeAd.showAd(nativeAdView);
                 MainActivity.this.nativeAd = nativeAd;
             }
@@ -177,14 +177,14 @@ public class MainActivity extends AppCompatActivity {
         this.awesomeMediation = new AwesomeMediation().setConfig(config);
         this.awesomeMediation.setMediationAdCallback(new MediationAdCallback<MediationInterstitialAd<Activity>>() {
             @Override
-            public void onAdLoaded(MediationAdNetwork mediationAdNetwork, MediationAdType adType, MediationInterstitialAd<Activity> mediationNetworkLoader) {
-                super.onAdLoaded(mediationAdNetwork, adType, mediationNetworkLoader);
+            public void onAdLoaded(String positionName, MediationAdNetwork mediationAdNetwork, MediationAdType adType, MediationInterstitialAd<Activity> mediationNetworkLoader) {
+                super.onAdLoaded(positionName, mediationAdNetwork, adType, mediationNetworkLoader);
                 mediationNetworkLoader.showAd(MainActivity.this);
             }
 
             @Override
-            public void onAdError(MediationAdNetwork mediationAdNetwork, MediationAdType adType, String errorMessage) {
-                super.onAdError(mediationAdNetwork, adType, errorMessage);
+            public void onAdError(String positionName, MediationAdNetwork mediationAdNetwork, MediationAdType adType, String errorMessage) {
+                super.onAdError(positionName, mediationAdNetwork, adType, errorMessage);
                 Toast.makeText(MainActivity.this, mediationAdNetwork.getAdName() + " " + errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
