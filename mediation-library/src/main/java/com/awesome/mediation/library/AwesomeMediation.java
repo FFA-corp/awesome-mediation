@@ -33,7 +33,6 @@ public class AwesomeMediation {
     public void load() {
         List<String> priorityList = MediationPrefs.instance(config.context).getPriorityList(config.getPriority());
         Map<MediationAdNetwork, MediationNetworkLoader> mediationNetworkConfigMap = config.getMediationNetworkConfigMap();
-        MediationAdLogger.logD("load: " + priorityList);
         for (String priority : priorityList) {
             MediationAdNetwork mediationAdNetwork = MediationAdNetwork.lookup(priority);
             if (mediationAdNetwork == null) {
