@@ -6,9 +6,9 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -20,6 +20,7 @@ import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 
 import com.awesome.mediation.library.base.MediationNativeAd;
+import com.awesome.mediation.library.config.MediationPrefs;
 import com.awesome.mediation.library.util.MediationAdLogger;
 import com.squareup.picasso.Picasso;
 
@@ -32,6 +33,11 @@ public class MediationNativeAdView extends LinearLayout {
     private static final String TAG = "MEDIATION-NATIVE";
     private static final String ADMOB_NATIVE_AD_VIEW = "com.google.android.gms.ads.nativead.NativeAdView";
     private static final String ADMOB_NATIVE_AD = "com.google.android.gms.ads.nativead.NativeAd";
+
+    private static final String APPODEAL_NATIVE_AD_VIEW = "com.appodeal.ads.NativeAdView";
+    private static final String APPODEAL_NATIVE_AD = "com.appodeal.ads.NativeAd";
+    private static final String APPODEAL_NATIVE_ICON_VIEW = "com.appodeal.ads.NativeIconView";
+    private static final String APPODEAL_NATIVE_MEDIA_VIEW = "com.appodeal.ads.NativeMediaView";
 
     private TextView tvNativeTitle;
     private TextView tvNativeBody;
@@ -75,9 +81,10 @@ public class MediationNativeAdView extends LinearLayout {
 
     private void initView(AttributeSet attrs) {
 
-        inflate(getContext(), R.layout.mdl_native_ad_view, this);
+        Context context = getContext();
+        inflate(context, R.layout.mdl_native_ad_view, this);
 
-        TypedArray typedArray = getContext().getTheme().obtainStyledAttributes(attrs, R.styleable.MediationNativeAdView, 0, 0);
+        TypedArray typedArray = context.getTheme().obtainStyledAttributes(attrs, R.styleable.MediationNativeAdView, 0, 0);
 
         if (typedArray.hasValue(R.styleable.MediationNativeAdView_ad_style)) {
             int style = typedArray.getInt(R.styleable.MediationNativeAdView_ad_style, 0);
@@ -96,9 +103,26 @@ public class MediationNativeAdView extends LinearLayout {
         this.layoutAdChoice = this.findViewById(R.id.native_adchoice_view);
         this.layoutContentAd = this.findViewById(R.id.layout_content_ad);
         this.layoutRootAd = this.findViewById(R.id.root_ad_view);
+
+        int mediaViewHeight = MediationPrefs.instance(context).getMediaViewHeight();
+        if (mediaViewHeight <= 0) {
+            layoutRootAd.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    int measuredWidth = layoutRootAd.getMeasuredWidth();
+                    int height = (int) (((float) 9 / 16) * measuredWidth);
+                    layoutMediaView.getLayoutParams().height = height;
+                    MediationPrefs.instance(context).saveMediaViewHeight(height);
+                    layoutRootAd.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                }
+            });
+        } else {
+            layoutMediaView.getLayoutParams().height = mediaViewHeight;
+        }
+
         this.nativeAdContentLayout = this.findViewById(R.id.native_ad_content_layout);
         this.layoutAdContent = findViewById(this.getResources().getIdentifier("layout_ad_content", "id",
-                getContext().getPackageName()));
+                context.getPackageName()));
         this.setVisibility(VISIBLE);
     }
 
@@ -156,13 +180,19 @@ public class MediationNativeAdView extends LinearLayout {
 
         this.hideLoadingState(tvNativeTitle, tvNativeBody, btNativeCta, viewIcon, layoutMediaView);
 
-        Log.i("superman", "show: " + unifiedNativeAd.getAdTitle());
+        ViewGroup adMediaView = unifiedNativeAd.getAdMediaView();
+        if (this.adStyle == Style.MEDIA_VIEW && adMediaView != null) {
+            this.layoutMediaView.addView(adMediaView, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+            this.layoutMediaView.setVisibility(VISIBLE);
+        }
         Context context = getContext();
         FrameLayout nativeAdView = new FrameLayout(context);
         Class<?> adContainerClass = unifiedNativeAd.getAdContainerClass();
         String name = adContainerClass.getName();
         if (ADMOB_NATIVE_AD_VIEW.equalsIgnoreCase(name)) {
             setupAdViewForAdMob(unifiedNativeAd, context);
+        } else if (APPODEAL_NATIVE_AD_VIEW.equalsIgnoreCase(name)) {
+            setupAdViewForAppodeal(unifiedNativeAd, context);
         }
 
         this.tvNativeTitle.setText(unifiedNativeAd.getAdTitle());
@@ -170,11 +200,6 @@ public class MediationNativeAdView extends LinearLayout {
         this.btNativeCta.setBackgroundResource(R.drawable.mdl_bg_cta);
         this.btNativeCta.setText(unifiedNativeAd.getAdCallToAction());
 
-        ViewGroup adMediaView = unifiedNativeAd.getAdMediaView();
-        if (this.adStyle == Style.MEDIA_VIEW && adMediaView != null) {
-            this.layoutMediaView.addView(adMediaView, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-            this.layoutMediaView.setVisibility(VISIBLE);
-        }
         ImageView adIconLogoView = new ImageView(context);
         ViewGroup adIconView = unifiedNativeAd.getAdIconView();
         if (adIconView != null) {
@@ -196,11 +221,68 @@ public class MediationNativeAdView extends LinearLayout {
         if (adAdChoiceView != null) {
             layoutAdChoice.addView(adAdChoiceView);
         }
+        try {
+            ((ViewGroup) layoutContentAd.getParent()).removeView(layoutContentAd);
+        } catch (Exception ignored) {
+        }
         nativeAdView.addView(layoutContentAd);
+        nativeAdView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         this.layoutRootAd.addView(nativeAdView);
 
         this.layoutRootAd.setVisibility(VISIBLE);
         setVisibility(VISIBLE);
+    }
+
+    private void setupAdViewForAppodeal(MediationNativeAd unifiedNativeAd, Context context) {
+        ClassLoader classLoader = context.getClassLoader();
+        try {
+            Class<?> nativeAdViewClass = classLoader.loadClass(APPODEAL_NATIVE_AD_VIEW);
+            Constructor<?> constructor = nativeAdViewClass.getDeclaredConstructor(Context.class);
+            ViewGroup nativeAdViewInstance = (ViewGroup) nativeAdViewClass.cast(constructor.newInstance(context));
+            Method setLayoutParams = nativeAdViewClass.getMethod("setLayoutParams", ViewGroup.LayoutParams.class);
+            setLayoutParams.invoke(nativeAdViewInstance, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+
+            Method setTitleView = nativeAdViewClass.getMethod("setTitleView", View.class);
+            setTitleView.invoke(nativeAdViewInstance, tvNativeTitle);
+
+            Method setDescriptionView = nativeAdViewClass.getMethod("setDescriptionView", View.class);
+            setDescriptionView.invoke(nativeAdViewInstance, tvNativeBody);
+
+            Class<?> nativeIconViewClass = classLoader.loadClass(APPODEAL_NATIVE_ICON_VIEW);
+            Method setNativeIconView = nativeAdViewClass.getMethod("setNativeIconView", nativeIconViewClass);
+            setNativeIconView.invoke(nativeAdViewInstance, nativeIconViewClass.cast(unifiedNativeAd.getAdIconView()));
+
+            Method setCallToActionView = nativeAdViewClass.getMethod("setCallToActionView", View.class);
+            setCallToActionView.invoke(nativeAdViewInstance, btNativeCta);
+
+            Class<?> nativeAdClass = classLoader.loadClass(APPODEAL_NATIVE_AD);
+            Object nativeAdInstance = nativeAdClass.cast(unifiedNativeAd.getAdLoadedInstance());
+
+            Method containsVideo = nativeAdClass.getMethod("containsVideo");
+            boolean containVideoVal = (boolean) containsVideo.invoke(nativeAdInstance);
+            if (containVideoVal) {
+                Class<?> nativeMediaViewClass = classLoader.loadClass(APPODEAL_NATIVE_MEDIA_VIEW);
+                Method setNativeMediaView = nativeAdViewClass.getMethod("setNativeMediaView", nativeMediaViewClass);
+                setNativeMediaView.invoke(nativeAdViewInstance, nativeMediaViewClass.cast(unifiedNativeAd.getAdMediaView()));
+            } else {
+                layoutMediaView.setVisibility(GONE);
+            }
+
+            Method getProviderView = nativeAdClass.getMethod("getProviderView", Context.class);
+            View providerView = (View) getProviderView.invoke(nativeAdInstance, context);
+            if (providerView != null) {
+                if (providerView.getParent() != null && providerView.getParent() instanceof ViewGroup) {
+                    ((ViewGroup) providerView.getParent()).removeView(providerView);
+                }
+                layoutAdChoice.addView(providerView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                Method setProviderView = nativeAdViewClass.getMethod("setProviderView", View.class);
+                setProviderView.invoke(nativeAdViewInstance, layoutAdChoice);
+            }
+            Method registerView = nativeAdViewClass.getMethod("registerView", nativeAdClass);
+            registerView.invoke(nativeAdViewInstance, nativeAdInstance);
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
+            e.printStackTrace();
+        }
     }
 
     private void setupAdViewForAdMob(MediationNativeAd unifiedNativeAd, Context context) {
@@ -233,7 +315,6 @@ public class MediationNativeAdView extends LinearLayout {
 
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             e.printStackTrace();
-            Log.i("superman", "show: " + e.getMessage());
         }
     }
 

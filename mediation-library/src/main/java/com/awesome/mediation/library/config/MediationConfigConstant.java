@@ -6,4 +6,5 @@ public interface MediationConfigConstant {
     String AD_PRIORITY_NATIVE = "ad_priority_native";
     String LAST_REQUEST_IT_AD_TIME = "last_request_it_ad_time";
     String TIME_IT_DELAY = "time_it_delay";
+    String MEDIA_VIEW_HEIGHT = "media_view_height";
 }

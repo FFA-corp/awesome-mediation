@@ -13,11 +13,12 @@ import com.appodeal.ads.InterstitialCallbacks;
 import com.appodeal.ads.NativeCallbacks;
 import com.appodeal.ads.RewardedVideoCallbacks;
 import com.appodeal.ads.UserSettings;
+import com.awesome.mediation.library.util.MediationAdLogger;
 
 public class AppodealInitializer {
 
     private static AppodealInitializer instance;
-    private String appKey;
+    private String appKey = "a09ff3fbe33f1be47614a928684d998d94f895e1e431052b";
 
     public AppodealInitializer(String appKey) {
         this.appKey = appKey;
@@ -43,9 +44,7 @@ public class AppodealInitializer {
     }
 
     public static synchronized AppodealInitializer getInstance() {
-        if (instance == null) {
-            instance = new AppodealInitializer();
-        }
+        instance = new AppodealInitializer();
         return instance;
     }
 
@@ -119,9 +118,17 @@ public class AppodealInitializer {
     }
 
     public void initNativeAd(Activity activity, boolean enableConsentForm, NativeCallbacks callbacks) {
-//        Appodeal.setRequiredNativeMediaAssetType(Native.MediaAssetType.IMAGE);
-        Appodeal.setNativeCallbacks(callbacks);
+        MediationAdLogger.logI(appKey);
         Appodeal.initialize(activity, appKey, Appodeal.NATIVE, enableConsentForm);
+//        enableAutoCache(true, Appodeal.NATIVE);
+        Appodeal.setNativeCallbacks(callbacks);
+//        enableAutoCache(true, Appodeal.NATIVE);
+    }
+
+    public void initAdForActivity(Activity activity, boolean enableConsentForm) {
+        Appodeal.setUserAge(25);
+        Appodeal.setUserGender(UserSettings.Gender.MALE);
+        Appodeal.initialize(activity, appKey, Appodeal.NONE, enableConsentForm);
     }
 
     public void initBannerAd(Activity activity, @IdRes int bannerViewId, BannerCallbacks callbacks) {

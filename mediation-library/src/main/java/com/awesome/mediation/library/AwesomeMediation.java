@@ -4,7 +4,6 @@ import android.content.Context;
 
 import com.awesome.mediation.library.base.MediationAdCallback;
 import com.awesome.mediation.library.base.MediationNetworkLoader;
-import com.awesome.mediation.library.config.MediationAdManager;
 import com.awesome.mediation.library.config.MediationPrefs;
 import com.awesome.mediation.library.util.MediationAdLogger;
 import com.awesome.mediation.library.util.MediationDeviceUtil;
@@ -16,6 +15,8 @@ import java.util.Map;
 
 public class AwesomeMediation {
 
+    private final LinkedList<MediationNetworkLoader> mediationNetworkLoaderQueues = new LinkedList<>();
+
     private Config config;
     private MediationAdCallback<MediationNetworkLoader> callback;
     private boolean destroyed;
@@ -26,16 +27,9 @@ public class AwesomeMediation {
     }
 
     public void load() {
-        if (!MediationDeviceUtil.isConnected(config.context)) {
-            MediationAdLogger.logD("Not connect to internet");
-            return;
-        }
-        if (MediationAdManager.getInstance(config.context).getAppDelegate().isAppPurchased()) {
-            MediationAdLogger.logD("App is purchased");
-            return;
-        }
         List<String> priorityList = MediationPrefs.instance(config.context).getPriorityList(config.getPriority());
         Map<MediationAdNetwork, MediationNetworkLoader> mediationNetworkConfigMap = config.getMediationNetworkConfigMap();
+        MediationAdLogger.logD("load: " + priorityList);
         for (String priority : priorityList) {
             MediationAdNetwork mediationAdNetwork = MediationAdNetwork.lookup(priority);
             if (mediationAdNetwork == null) {
@@ -62,6 +56,8 @@ public class AwesomeMediation {
 
     private void executeQueues() {
         MediationNetworkLoader mediationNetworkLoader = mediationNetworkLoaderQueues.getFirst();
+        MediationAdLogger.logD("executeQueues: " + mediationNetworkLoader.getClass().getName()
+                + "  " + mediationNetworkLoaderQueues.size());
         mediationNetworkLoader.setAdLoaderCallback(new MediationAdCallback<MediationNetworkLoader>() {
             @Override
             public void onAdClicked(String positionName, MediationAdNetwork mediationAdNetwork, MediationAdType adType) {
@@ -75,7 +71,7 @@ public class AwesomeMediation {
             public void onAdClosed(String positionName, MediationAdNetwork mediationAdNetwork, MediationAdType adType) {
                 super.onAdClosed(positionName, mediationAdNetwork, adType);
                 if (callback != null) {
-                    callback.onAdImpression(positionName, mediationAdNetwork, adType);
+                    callback.onAdClosed(positionName, mediationAdNetwork, adType);
                 }
             }
 
@@ -83,14 +79,29 @@ public class AwesomeMediation {
             public void onAdError(String positionName, MediationAdNetwork mediationAdNetwork, MediationAdType adType, String errorMessage) {
                 super.onAdError(positionName, mediationAdNetwork, adType, errorMessage);
                 if (destroyed) {
+                    if (callback != null) {
+                        callback.onAdError(positionName, mediationAdNetwork, adType, "Ad is destroyed");
+                        callback.onAllAdError(positionName, mediationAdNetwork, adType);
+                    }
                     return;
                 }
+
+                if (!MediationDeviceUtil.isConnected(config.context)) {
+                    if (callback != null) {
+                        callback.onAdError(positionName, mediationAdNetwork, adType, "No internet connection");
+                        callback.onAllAdError(positionName, mediationAdNetwork, adType);
+                    }
+                    mediationNetworkLoaderQueues.clear();
+                    return;
+                }
+
                 if (!mediationNetworkLoaderQueues.isEmpty()) {
                     mediationNetworkLoaderQueues.removeFirst();
                 }
                 if (mediationNetworkLoaderQueues.isEmpty()) {
                     if (callback != null) {
                         callback.onAdError(positionName, mediationAdNetwork, adType, errorMessage);
+                        callback.onAllAdError(positionName, mediationAdNetwork, adType);
                     }
                     return;
                 }
@@ -114,9 +125,7 @@ public class AwesomeMediation {
                 if (callback != null) {
                     callback.onAdLoaded(positionName, mediationAdNetwork, adType, mediationNetworkLoader);
                 }
-                if (!mediationNetworkLoaderQueues.isEmpty()) {
-                    mediationNetworkLoaderQueues.removeFirst();
-                }
+                mediationNetworkLoaderQueues.clear();
             }
         });
         mediationNetworkLoader.load(config.context);
@@ -135,7 +144,6 @@ public class AwesomeMediation {
         mediationNetworkLoaderQueues.clear();
     }
 
-    private LinkedList<MediationNetworkLoader> mediationNetworkLoaderQueues = new LinkedList<>();
 
     private void addAdNetworkRequestToQueue(MediationNetworkLoader mediationNetworkLoader) {
         if (mediationNetworkLoaderQueues.contains(mediationNetworkLoader)) {

@@ -16,7 +16,7 @@ public class AppodealBannerAd extends MediationBannerAd {
 
     @Override
     public void destroy() {
-        Appodeal.destroy(Appodeal.BANNER);
+//        Appodeal.destroy(Appodeal.BANNER);
     }
 
     @Override
@@ -24,6 +24,7 @@ public class AppodealBannerAd extends MediationBannerAd {
         if (!super.load(context)) {
             return false;
         }
+
         AppodealInitializer.getInstance().initBannerAd(((Activity) context), R.id.appodeal_view_banner_ad, new BannerCallbacks() {
             @Override
             public void onBannerLoaded(int i, boolean b) {
@@ -55,6 +56,11 @@ public class AppodealBannerAd extends MediationBannerAd {
                 onAdError("Ad is expired");
             }
         });
+
+        if (isAdLoaded()) {
+            onAdLoaded();
+            return true;
+        }
         return true;
     }
 

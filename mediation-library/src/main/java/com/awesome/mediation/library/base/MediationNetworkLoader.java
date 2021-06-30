@@ -29,14 +29,18 @@ public abstract class MediationNetworkLoader {
     public boolean load(Context context) {
         this.context = context;
         this.adLoaded = false;
+        MediationAdLogger.logD("ok 2");
         if (!canLoadAd(context)) {
-            onAdError("Can't load ad");
+            onAdError("Can't load ad or App purchased");
             return false;
         }
+        MediationAdLogger.logD("ok 3");
 
         MediationRemoteConfig config = new MediationAdConfig(context).getConfig();
         if (!config.isLivePlacement(adPositionName)) {
             onAdError(String.format(Locale.US, "Placement \"%s\" is disable", adPositionName));
+            MediationAdLogger.logD("ok 4");
+
             return false;
         }
         return true;

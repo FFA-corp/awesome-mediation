@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.appodeal.ads.Appodeal;
+import com.appodeal.ads.Native;
 import com.appodeal.ads.NativeAd;
 import com.appodeal.ads.NativeAdView;
 import com.appodeal.ads.NativeCallbacks;
@@ -24,13 +25,19 @@ public class AppodealNativeAd extends MediationNativeAd {
 
     @Override
     public boolean load(Context context) {
+        adLoaded = false;
         if (!super.load(context)) {
             return false;
         }
+
+        Appodeal.setRequiredNativeMediaAssetType(Native.MediaAssetType.ALL);
         AppodealInitializer.getInstance().initNativeAd(((Activity) context), new NativeCallbacks() {
             @Override
             public void onNativeLoaded() {
-                onAdLoaded();
+                if (!adLoaded) {
+                    onAdLoaded();
+                    adLoaded = true;
+                }
             }
 
             @Override
@@ -40,7 +47,7 @@ public class AppodealNativeAd extends MediationNativeAd {
 
             @Override
             public void onNativeShown(com.appodeal.ads.NativeAd nativeAd) {
-                onAdImpression();
+//                onAdImpression();
             }
 
             @Override
@@ -58,12 +65,20 @@ public class AppodealNativeAd extends MediationNativeAd {
                 onAdError("Ad is expired");
             }
         });
+        if (isAdLoaded()) {
+            onAdLoaded();
+            return true;
+        }
         return true;
     }
 
     @Override
     protected void onAdLoaded() {
+//        super.onAdLoaded();
         populateDataFromAdLoadedInstance(context);
+        if (getMediationAdCallback() != null) {
+            getMediationAdCallback().onAdLoaded(adPositionName, getMediationNetwork(), getMediationAdType(), this);
+        }
     }
 
     @Override
@@ -73,20 +88,13 @@ public class AppodealNativeAd extends MediationNativeAd {
 
     @Override
     public void showAd(MediationNativeAdView mediationNativeAdView) {
+        onAdImpression();
         mediationNativeAdView.show(this);
     }
 
     @Override
     protected void populateDataFromAdLoadedInstance(Context context) {
-        List<NativeAd> nativeAds = Appodeal.getNativeAds(0);
-        if (nativeAds.isEmpty()) {
-            onAdError("Ads is empty");
-            return;
-        }
-        super.onAdLoaded();
-        if (getMediationAdCallback() != null) {
-            getMediationAdCallback().onAdLoaded(adPositionName, getMediationNetwork(), getMediationAdType(), this);
-        }
+        List<NativeAd> nativeAds = Appodeal.getNativeAds(1);
         this.loadedAd = nativeAds.get(0);
         super.adTitle = loadedAd.getTitle();
         super.adBody = loadedAd.getDescription();
@@ -102,8 +110,8 @@ public class AppodealNativeAd extends MediationNativeAd {
             providerViewContainer.addView(providerView, layoutParams);
             super.adAdChoiceView = providerViewContainer;
         }
-
         super.adMediaView = new NativeMediaView(context);
+        this.adMediaView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         super.adIconView = new NativeIconView(context);
     }
 
@@ -117,6 +125,7 @@ public class AppodealNativeAd extends MediationNativeAd {
         if (loadedAd != null) {
             loadedAd.destroy();
         }
+        Appodeal.destroy(Appodeal.NATIVE);
     }
 
     @Override

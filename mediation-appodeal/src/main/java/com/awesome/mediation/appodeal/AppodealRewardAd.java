@@ -67,6 +67,10 @@ public class AppodealRewardAd extends MediationRewardedAd {
                 onAdClicked();
             }
         });
+        if (isAdLoaded()) {
+            onAdLoaded();
+            return true;
+        }
         return true;
     }
 

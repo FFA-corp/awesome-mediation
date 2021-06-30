@@ -36,7 +36,7 @@ public class MainApp extends Application {
 
     private void initMediationAds() {
         MediationAdManager.init(this, BuildConfig.DEBUG);
-        AppodealInitializer.init("fee50c333ff3825fd6ad6d38cff78154de3025546d47a84f", true);
+        AppodealInitializer.init("a09ff3fbe33f1be47614a928684d998d94f895e1e431052b", true);
         MediationAdManager.getInstance(this)
                 .setAppDelegate(new MediationAppDelegate() {
                     @Override

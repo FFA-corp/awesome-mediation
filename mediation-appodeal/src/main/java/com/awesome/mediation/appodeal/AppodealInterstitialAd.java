@@ -2,6 +2,7 @@ package com.awesome.mediation.appodeal;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 
 import com.appodeal.ads.Appodeal;
 import com.appodeal.ads.InterstitialCallbacks;
@@ -12,7 +13,9 @@ import com.awesome.mediation.library.util.MediationAdLogger;
 public class AppodealInterstitialAd extends MediationInterstitialAd<Activity> {
     @Override
     public void showAd(Activity context) {
-        if (super.canShowAd(context)) {
+        boolean b = super.canShowAd(context);
+        Log.i("superman", "showAd:  " + b);
+        if (b) {
             super.updateShowingState();
             Appodeal.show(context, Appodeal.INTERSTITIAL);
             return;
@@ -27,7 +30,7 @@ public class AppodealInterstitialAd extends MediationInterstitialAd<Activity> {
         }
         assert context instanceof Activity;
         Activity activity = (Activity) context;
-//        AppodealInitializer.getInstance().enableAutoCache(false, Appodeal.INTERSTITIAL);
+        AppodealInitializer.getInstance().enableAutoCache(true, Appodeal.INTERSTITIAL);
         AppodealInitializer.getInstance().initInterstitialAd(activity, new InterstitialCallbacks() {
             @Override
             public void onInterstitialLoaded(boolean isPrecache) {
@@ -64,6 +67,10 @@ public class AppodealInterstitialAd extends MediationInterstitialAd<Activity> {
                 onAdError("Ad is expired");
             }
         });
+        if (isAdLoaded()) {
+            onAdLoaded();
+            return true;
+        }
         return true;
     }
 

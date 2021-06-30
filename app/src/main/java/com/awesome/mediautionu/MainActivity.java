@@ -2,6 +2,7 @@ package com.awesome.mediautionu;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
@@ -12,6 +13,7 @@ import com.awesome.mediation.admob.AdMobInterstitialAd;
 import com.awesome.mediation.admob.AdMobNativeAd;
 import com.awesome.mediation.admob.AdMobRewardAd;
 import com.awesome.mediation.appodeal.AppodealBannerAd;
+import com.awesome.mediation.appodeal.AppodealInitializer;
 import com.awesome.mediation.appodeal.AppodealInterstitialAd;
 import com.awesome.mediation.appodeal.AppodealNativeAd;
 import com.awesome.mediation.appodeal.AppodealRewardAd;
@@ -45,12 +47,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        AppodealInitializer.getInstance().initAdForActivity(this, false);
 
         nativeAdView = findViewById(R.id.native_ad_view);
         MediationRemoteConfig mediationConfig = new MediationAdConfig(this).getConfig();
 
-//        this.loadAdInter(mediationConfig);
+//        this.loadAdInter(mediationConfig);x
         this.loadAdNative(mediationConfig);
 //        this.loadBanner(mediationConfig);
 //        this.loadReward(mediationConfig);
@@ -150,6 +152,12 @@ public class MainActivity extends AppCompatActivity {
                 nativeAd.showAd(nativeAdView);
                 MainActivity.this.nativeAd = nativeAd;
             }
+
+            @Override
+            public void onAllAdError(String positionName, MediationAdNetwork mediationAdNetwork, MediationAdType adType) {
+                super.onAllAdError(positionName, mediationAdNetwork, adType);
+                nativeAdView.setVisibility(View.GONE);
+            }
         });
         awesomeMediation.load();
     }
@@ -186,6 +194,11 @@ public class MainActivity extends AppCompatActivity {
             public void onAdError(String positionName, MediationAdNetwork mediationAdNetwork, MediationAdType adType, String errorMessage) {
                 super.onAdError(positionName, mediationAdNetwork, adType, errorMessage);
                 Toast.makeText(MainActivity.this, mediationAdNetwork.getAdName() + " " + errorMessage, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onAllAdError(String positionName, MediationAdNetwork mediationAdNetwork, MediationAdType adType) {
+                super.onAllAdError(positionName, mediationAdNetwork, adType);
             }
         });
         this.awesomeMediation.load();

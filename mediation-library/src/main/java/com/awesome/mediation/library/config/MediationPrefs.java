@@ -82,4 +82,12 @@ public class MediationPrefs extends MediationBasePrefData implements MediationCo
         long timeUsed = System.currentTimeMillis() - lastInterAdRequestTime;
         return timeUsed > delayTime * 1000;
     }
+
+    public void saveMediaViewHeight(int height) {
+        putInt(MEDIA_VIEW_HEIGHT, height);
+    }
+
+    public int getMediaViewHeight() {
+        return getInt(MEDIA_VIEW_HEIGHT, 0);
+    }
 }
