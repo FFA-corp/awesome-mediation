@@ -2,6 +2,8 @@ package com.awesome.mediation.appodeal;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -21,7 +23,10 @@ import java.util.List;
 
 public class AppodealNativeAd extends MediationNativeAd {
 
+    private static final long TIMEOUT = 7000;
     private com.appodeal.ads.NativeAd loadedAd;
+    private final Handler handler = new Handler();
+    private boolean destroyed;
 
     @Override
     public boolean load(Context context) {
@@ -31,10 +36,23 @@ public class AppodealNativeAd extends MediationNativeAd {
         }
 
         Appodeal.setRequiredNativeMediaAssetType(Native.MediaAssetType.ALL);
+        if (isAdLoaded()) {
+            destroyHandler();
+            onAdLoaded();
+            return true;
+        }
+
+        handler.postDelayed(() -> {
+            onAdError("Ad is timeout");
+            destroy();
+        }, TIMEOUT);
+
         AppodealInitializer.getInstance().initNativeAd(((Activity) context), new NativeCallbacks() {
             @Override
             public void onNativeLoaded() {
-                if (!adLoaded) {
+                Log.i("superman", "onNativeLoaded: ");
+                destroyHandler();
+                if (!adLoaded && !destroyed) {
                     onAdLoaded();
                     adLoaded = true;
                 }
@@ -43,16 +61,17 @@ public class AppodealNativeAd extends MediationNativeAd {
             @Override
             public void onNativeFailedToLoad() {
                 onAdError("Ad load fail");
+                destroyHandler();
             }
 
             @Override
             public void onNativeShown(com.appodeal.ads.NativeAd nativeAd) {
-//                onAdImpression();
             }
 
             @Override
             public void onNativeShowFailed(com.appodeal.ads.NativeAd nativeAd) {
                 onAdError("Ad show fail");
+                destroyHandler();
             }
 
             @Override
@@ -65,16 +84,12 @@ public class AppodealNativeAd extends MediationNativeAd {
                 onAdError("Ad is expired");
             }
         });
-        if (isAdLoaded()) {
-            onAdLoaded();
-            return true;
-        }
+
         return true;
     }
 
     @Override
     protected void onAdLoaded() {
-//        super.onAdLoaded();
         populateDataFromAdLoadedInstance(context);
         if (getMediationAdCallback() != null) {
             getMediationAdCallback().onAdLoaded(adPositionName, getMediationNetwork(), getMediationAdType(), this);
@@ -125,7 +140,13 @@ public class AppodealNativeAd extends MediationNativeAd {
         if (loadedAd != null) {
             loadedAd.destroy();
         }
+        destroyHandler();
         Appodeal.destroy(Appodeal.NATIVE);
+        destroyed = true;
+    }
+
+    private void destroyHandler() {
+        handler.removeCallbacksAndMessages(null);
     }
 
     @Override

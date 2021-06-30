@@ -77,7 +77,6 @@ public final class MediationAdEventTracker {
 
     public void log(@NonNull @Size(min = 1L, max = 32L) String eventName, @NonNull Bundle bundle) {
         if (MediationAdManager.getInstance(context).isDebugMode()) {
-            MediationAdLogger.logW("Disable tracker mode.");
             return;
         }
         try {

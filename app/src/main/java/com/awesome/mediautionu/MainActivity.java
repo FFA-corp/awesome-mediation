@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private MediationNativeAdView nativeAdView;
     private MediationBannerAd mediationBannerAd;
     private MediationNativeAd nativeAd;
+    private AwesomeMediation nativeMediation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         nativeAdView = findViewById(R.id.native_ad_view);
         MediationRemoteConfig mediationConfig = new MediationAdConfig(this).getConfig();
 
-//        this.loadAdInter(mediationConfig);x
+//        this.loadAdInter(mediationConfig);
         this.loadAdNative(mediationConfig);
 //        this.loadBanner(mediationConfig);
 //        this.loadReward(mediationConfig);
@@ -144,8 +145,8 @@ public class MainActivity extends AppCompatActivity {
         config.setMediationNetworkConfigMap(mediationNetworkConfigMap)
                 .setPriority(MediationAdNetwork.APPODEAL, MediationAdNetwork.ADMOB, MediationAdNetwork.UNITY);
 
-        AwesomeMediation awesomeMediation = new AwesomeMediation().setConfig(config);
-        awesomeMediation.setMediationAdCallback(new MediationAdCallback<MediationNativeAd>() {
+        nativeMediation = new AwesomeMediation().setConfig(config);
+        nativeMediation.setMediationAdCallback(new MediationAdCallback<MediationNativeAd>() {
             @Override
             public void onAdLoaded(String positionName, MediationAdNetwork mediationAdNetwork, MediationAdType adType, MediationNativeAd nativeAd) {
                 super.onAdLoaded(positionName, mediationAdNetwork, adType, nativeAd);
@@ -159,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
                 nativeAdView.setVisibility(View.GONE);
             }
         });
-        awesomeMediation.load();
+        nativeMediation.load();
     }
 
     private void loadAdInter(MediationRemoteConfig mediationConfig) {
@@ -214,6 +215,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (this.mediationBannerAd != null) {
             this.mediationBannerAd.destroy();
+        }
+        if (nativeMediation != null) {
+            nativeMediation.destroy();
         }
 
         if (nativeAd != null) {

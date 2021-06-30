@@ -1,8 +1,10 @@
 package com.awesome.mediation.library;
 
 import android.content.Context;
+import android.os.Handler;
 
 import com.awesome.mediation.library.base.MediationAdCallback;
+import com.awesome.mediation.library.base.MediationNativeAd;
 import com.awesome.mediation.library.base.MediationNetworkLoader;
 import com.awesome.mediation.library.config.MediationPrefs;
 import com.awesome.mediation.library.util.MediationAdLogger;
@@ -14,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 public class AwesomeMediation {
+
+    private static final String APPODEAL_NATIVE_AD = "com.awesome.mediation.appodeal.AppodealNativeAd";
 
     private final LinkedList<MediationNetworkLoader> mediationNetworkLoaderQueues = new LinkedList<>();
 
@@ -50,7 +54,55 @@ public class AwesomeMediation {
     }
 
     public AwesomeMediation setMediationAdCallback(MediationAdCallback callback) {
-        this.callback = callback;
+        this.callback = new CallbackTrackerImpl<MediationNetworkLoader>(config.context) {
+            @Override
+            public void onAllAdError(String positionName, MediationAdNetwork mediationAdNetwork, MediationAdType adType) {
+                super.onAllAdError(positionName, mediationAdNetwork, adType);
+                if (callback != null) {
+                    callback.onAllAdError(positionName, mediationAdNetwork, adType);
+                }
+            }
+
+            @Override
+            public void onAdError(String positionName, MediationAdNetwork mediationAdNetwork, MediationAdType adType, String errorMessage) {
+                super.onAdError(positionName, mediationAdNetwork, adType, errorMessage);
+                if (callback != null) {
+                    callback.onAdError(positionName, mediationAdNetwork, adType, errorMessage);
+                }
+            }
+
+            @Override
+            public void onAdClicked(String positionName, MediationAdNetwork mediationAdNetwork, MediationAdType adType) {
+                super.onAdClicked(positionName, mediationAdNetwork, adType);
+                if (callback != null) {
+                    callback.onAdClicked(positionName, mediationAdNetwork, adType);
+                }
+            }
+
+            @Override
+            public void onAdClosed(String positionName, MediationAdNetwork mediationAdNetwork, MediationAdType adType) {
+                super.onAdClosed(positionName, mediationAdNetwork, adType);
+                if (callback != null) {
+                    callback.onAdClosed(positionName, mediationAdNetwork, adType);
+                }
+            }
+
+            @Override
+            public void onAdImpression(String positionName, MediationAdNetwork mediationAdNetwork, MediationAdType adType) {
+                super.onAdImpression(positionName, mediationAdNetwork, adType);
+                if (callback != null) {
+                    callback.onAdImpression(positionName, mediationAdNetwork, adType);
+                }
+            }
+
+            @Override
+            public void onAdLoaded(String positionName, MediationAdNetwork mediationAdNetwork, MediationAdType adType, MediationNetworkLoader mediationNetworkLoader) {
+                super.onAdLoaded(positionName, mediationAdNetwork, adType, mediationNetworkLoader);
+                if (callback != null) {
+                    callback.onAdLoaded(positionName, mediationAdNetwork, adType, mediationNetworkLoader);
+                }
+            }
+        };
         return this;
     }
 
@@ -128,7 +180,10 @@ public class AwesomeMediation {
                 mediationNetworkLoaderQueues.clear();
             }
         });
-        mediationNetworkLoader.load(config.context);
+        boolean appodealNativeAd = APPODEAL_NATIVE_AD.equalsIgnoreCase(mediationNetworkLoader.getClass().getName());
+        new Handler().postDelayed(() -> {
+            mediationNetworkLoader.load(config.context);
+        }, appodealNativeAd ? 800 : 0);
     }
 
     private void loadNextMediationAd() {
@@ -140,6 +195,11 @@ public class AwesomeMediation {
         destroyed = true;
         if (mediationNetworkLoaderQueues.isEmpty()) {
             return;
+        }
+        for (MediationNetworkLoader mediationNetworkLoaderQueue : mediationNetworkLoaderQueues) {
+            if (mediationNetworkLoaderQueue instanceof MediationNativeAd) {
+                ((MediationNativeAd) mediationNetworkLoaderQueue).destroy();
+            }
         }
         mediationNetworkLoaderQueues.clear();
     }

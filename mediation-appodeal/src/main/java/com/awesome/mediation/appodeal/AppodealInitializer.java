@@ -119,9 +119,9 @@ public class AppodealInitializer {
 
     public void initNativeAd(Activity activity, boolean enableConsentForm, NativeCallbacks callbacks) {
         MediationAdLogger.logI(appKey);
+        Appodeal.setNativeCallbacks(callbacks);
         Appodeal.initialize(activity, appKey, Appodeal.NATIVE, enableConsentForm);
 //        enableAutoCache(true, Appodeal.NATIVE);
-        Appodeal.setNativeCallbacks(callbacks);
 //        enableAutoCache(true, Appodeal.NATIVE);
     }
 
