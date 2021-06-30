@@ -51,7 +51,12 @@ public class CallbackTrackerImpl<T extends MediationNetworkLoader> extends Media
     }
 
     private void logEvent(MediationAdNetwork mediationAdNetwork, String adPlacement, String event) {
-        MediationAdEventTracker.instance(context).log(mediationAdNetwork.getAdName() + "_" + adPlacement + "_" + event);
+        MediationAdEventTracker instance = MediationAdEventTracker.instance(context);
+        if (ALL_ERROR.equalsIgnoreCase(event)) {
+            instance.log(mediationAdNetwork.getAdName() + "_" + adPlacement + "_" + event);
+        } else {
+            instance.log(adPlacement + "_" + event);
+        }
     }
 
 }
