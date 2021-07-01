@@ -50,6 +50,7 @@ public class UnityInterstitialAd extends MediationInterstitialAd<Activity> {
         if (!super.load(context)) {
             return false;
         }
+        super.logRequestAdTime();
         UnityAds.load(adUnitId, new IUnityAdsLoadListener() {
             @Override
             public void onUnityAdsAdLoaded(String placementId) {

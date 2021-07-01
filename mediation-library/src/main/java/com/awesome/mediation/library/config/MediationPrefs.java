@@ -65,7 +65,7 @@ public class MediationPrefs extends MediationBasePrefData implements MediationCo
     }
 
     public long getTimeItDelay() {
-        return getLong(TIME_IT_DELAY, 0);
+        return getLong(TIME_IT_DELAY, MediationAdManager.getInstance(context).getInterstitialAdTimeDelay());
     }
 
     public boolean canRequestAd() {

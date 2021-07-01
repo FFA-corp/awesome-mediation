@@ -67,6 +67,7 @@ public class AppodealInterstitialAd extends MediationInterstitialAd<Activity> {
                 onAdError("Ad is expired");
             }
         });
+        super.logRequestAdTime();
         if (isAdLoaded()) {
             onAdLoaded();
             return true;

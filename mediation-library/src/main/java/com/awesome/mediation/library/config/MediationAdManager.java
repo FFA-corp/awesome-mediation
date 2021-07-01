@@ -2,7 +2,6 @@ package com.awesome.mediation.library.config;
 
 import android.content.Context;
 
-import com.awesome.mediation.library.AwesomeMediation;
 import com.awesome.mediation.library.MediationAdNetwork;
 import com.awesome.mediation.library.MediationAppDelegate;
 import com.awesome.mediation.library.util.MediationFirebaseConfigFetcher;
@@ -15,7 +14,9 @@ import java.util.List;
 public class MediationAdManager {
     private static MediationAdManager instance;
     private boolean debugMode;
+    private boolean debugWithToastMode;
     private boolean enableEventTrack = false;
+    private int interstitialAdTimeDelay = 20;
     private MediationAppDelegate appDelegate;
     private List<MediationAdNetwork> adNetworkDefaults;
 
@@ -104,7 +105,25 @@ public class MediationAdManager {
 
     public MediationAdManager setAdNetworkDefault(MediationAdNetwork... adNetworkDefaults) {
         this.adNetworkDefaults = Arrays.asList(adNetworkDefaults);
-        return null;
+        return this;
+    }
+
+    public boolean isDebugWithToastMode() {
+        return debugWithToastMode;
+    }
+
+    public MediationAdManager setDebugWithToastMode(boolean debugWithToastMode) {
+        this.debugWithToastMode = debugWithToastMode;
+        return this;
+    }
+
+    public MediationAdManager setInterstitialAdTimeDelay(int interstitialAdTimeDelay) {
+        this.interstitialAdTimeDelay = interstitialAdTimeDelay;
+        return this;
+    }
+
+    public int getInterstitialAdTimeDelay() {
+        return interstitialAdTimeDelay;
     }
 
     public ArrayList<String> getAdNetworkDefaultStringList() {

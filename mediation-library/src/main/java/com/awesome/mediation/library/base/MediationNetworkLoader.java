@@ -1,6 +1,7 @@
 package com.awesome.mediation.library.base;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.awesome.mediation.library.MediationAdNetwork;
 import com.awesome.mediation.library.MediationAdType;
@@ -29,21 +30,39 @@ public abstract class MediationNetworkLoader {
     public boolean load(Context context) {
         this.context = context;
         this.adLoaded = false;
-        MediationAdLogger.logD("ok 2");
+        if (getMediationNetwork() != MediationAdNetwork.APPODEAL && TextUtils.isEmpty(adUnitId)) {
+            onAdError("Ad unit is empty");
+            return false;
+        }
+
+        MediationPrefs instance = MediationPrefs.instance(context);
+        boolean isInterAd = getMediationAdType() == MediationAdType.INTERSTITIAL;
+        if (isInterAd) {
+            MediationAdLogger.logI("Last request \"" + adPositionName + "\" at " + instance.getLastInterAdRequestTime() + "\n"
+                    + "Time delay: " + instance.getTimeItDelay() + "s | time used: "
+                    + ((System.currentTimeMillis() - instance.getLastInterAdRequestTime()) / 1000) + "s\n"
+                    + "Can request ads: " + instance.canRequestAd());
+        }
+
+        if (isInterAd && !instance.canRequestAd()) {
+            return false;
+        }
+
         if (!canLoadAd(context)) {
             onAdError("Can't load ad or App purchased");
             return false;
         }
-        MediationAdLogger.logD("ok 3");
 
         MediationRemoteConfig config = new MediationAdConfig(context).getConfig();
         if (!config.isLivePlacement(adPositionName)) {
             onAdError(String.format(Locale.US, "Placement \"%s\" is disable", adPositionName));
-            MediationAdLogger.logD("ok 4");
-
             return false;
         }
         return true;
+    }
+
+    protected void logRequestAdTime() {
+        MediationPrefs.instance(context).saveLastInterAdRequestTime();
     }
 
     protected void onAdError(String message) {
@@ -107,11 +126,8 @@ public abstract class MediationNetworkLoader {
     protected abstract MediationAdType getMediationAdType();
 
     protected boolean canLoadAd(Context context) {
-        if (!MediationDeviceUtil.isConnected(context)
-                || MediationAdManager.getInstance(context).getAppDelegate().isAppPurchased()) {
-            return false;
-        }
-        return MediationPrefs.instance(context).canRequestAd();
+        return MediationDeviceUtil.isConnected(context)
+                && !MediationAdManager.getInstance(context).getAppDelegate().isAppPurchased();
     }
 
     public void setAdLoaderCallback(MediationAdCallback<MediationNetworkLoader> mediationAdCallback) {

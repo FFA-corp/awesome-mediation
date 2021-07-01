@@ -3,7 +3,6 @@ package com.awesome.mediation.admob;
 
 import android.app.Activity;
 import android.content.Context;
-import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
@@ -11,10 +10,7 @@ import com.awesome.mediation.admob.util.AdMobAdUtil;
 import com.awesome.mediation.library.MediationAdNetwork;
 import com.awesome.mediation.library.MediationAdType;
 import com.awesome.mediation.library.MediationInterstitialAdCache;
-import com.awesome.mediation.library.base.MediationAdCallback;
 import com.awesome.mediation.library.base.MediationInterstitialAd;
-import com.awesome.mediation.library.base.MediationNetworkLoader;
-import com.awesome.mediation.library.config.MediationPrefs;
 import com.awesome.mediation.library.util.MediationAdLogger;
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.FullScreenContentCallback;
@@ -66,11 +62,6 @@ public class AdMobInterstitialAd extends MediationInterstitialAd<Activity> {
 
     private void loadAd(Context context) {
 
-        MediationAdCallback<MediationNetworkLoader> mediationAdCallback = getMediationAdCallback();
-        if (mediationAdCallback != null && TextUtils.isEmpty(adUnitId)) {
-            MediationAdLogger.logE("AD UNIT is empty");
-            return;
-        }
         final MediationInterstitialAdCache instance = MediationInterstitialAdCache.instance();
         if (instance.hasCache(adPositionName) && !instance.getAd(adPositionName).isAdShowed()) {
             MediationAdLogger.logD(adPositionName + " has cache instance. Return result now.");
@@ -78,7 +69,7 @@ public class AdMobInterstitialAd extends MediationInterstitialAd<Activity> {
             return;
         }
 
-        MediationPrefs.instance(context).saveLastInterAdRequestTime();
+        super.logRequestAdTime();
         InterstitialAd.load(context, adUnitId, AdMobAdUtil.getAdRequestBuilderWithTestDevice(context).build(),
                 new InterstitialAdLoadCallback() {
                     @Override

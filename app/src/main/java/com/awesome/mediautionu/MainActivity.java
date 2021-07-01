@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -51,8 +52,13 @@ public class MainActivity extends AppCompatActivity {
         AppodealInitializer.getInstance().initAdForActivity(this, false);
 
         nativeAdView = findViewById(R.id.native_ad_view);
+
         MediationRemoteConfig mediationConfig = new MediationAdConfig(this).getConfig();
 
+        findViewById(R.id.bt_request_inter).setOnClickListener(view -> loadAdInter(mediationConfig));
+        findViewById(R.id.bt_request_reward).setOnClickListener(view -> loadReward(mediationConfig));
+        findViewById(R.id.bt_request_banner).setOnClickListener(view -> loadBanner(mediationConfig));
+        findViewById(R.id.bt_request_native).setOnClickListener(view -> loadAdNative(mediationConfig));
 //        this.loadAdInter(mediationConfig);
         this.loadAdNative(mediationConfig);
 //        this.loadBanner(mediationConfig);
@@ -78,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
         mediationNetworkConfigMap.put(MediationAdNetwork.APPODEAL, appodealBannerAd);
 
         config.setMediationNetworkConfigMap(mediationNetworkConfigMap)
-                .setPriority(MediationAdNetwork.APPODEAL, MediationAdNetwork.ADMOB, MediationAdNetwork.UNITY);
+                .setPriority(getPriority());
 
         ViewGroup viewBanner = findViewById(R.id.view_banner);
         AwesomeMediation awesomeMediation = new AwesomeMediation().setConfig(config);
@@ -111,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
         mediationNetworkConfigMap.put(MediationAdNetwork.APPODEAL, appodealRewardAd);
 
         config.setMediationNetworkConfigMap(mediationNetworkConfigMap)
-                .setPriority(MediationAdNetwork.APPODEAL, MediationAdNetwork.UNITY, MediationAdNetwork.ADMOB);
+                .setPriority(getPriority());
 
         AwesomeMediation awesomeMediation = new AwesomeMediation().setConfig(config);
         awesomeMediation.setMediationAdCallback(new MediationAdCallback<MediationRewardedAd>() {
@@ -129,6 +135,11 @@ public class MainActivity extends AppCompatActivity {
         awesomeMediation.load();
     }
 
+    private String getPriority() {
+        EditText edPriority = findViewById(R.id.ed_priority);
+        return edPriority.getText().toString().trim();
+    }
+
     private void loadAdNative(MediationRemoteConfig mediationConfig) {
         AwesomeMediation.Config config = new AwesomeMediation.Config(this);
         HashMap<MediationAdNetwork, MediationNetworkLoader> mediationNetworkConfigMap = new HashMap<>();
@@ -143,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
         mediationNetworkConfigMap.put(MediationAdNetwork.APPODEAL, appodealNative);
 
         config.setMediationNetworkConfigMap(mediationNetworkConfigMap)
-                .setPriority(MediationAdNetwork.APPODEAL, MediationAdNetwork.ADMOB, MediationAdNetwork.UNITY);
+                .setPriority(getPriority());
 
         nativeMediation = new AwesomeMediation().setConfig(config);
         nativeMediation.setMediationAdCallback(new MediationAdCallback<MediationNativeAd>() {
@@ -181,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
         mediationNetworkConfigMap.put(MediationAdNetwork.APPODEAL, appodealInterstitialAd);
 
         config.setMediationNetworkConfigMap(mediationNetworkConfigMap)
-                .setPriority(MediationAdNetwork.APPODEAL, MediationAdNetwork.UNITY, MediationAdNetwork.ADMOB);
+                .setPriority(getPriority());
 
         this.awesomeMediation = new AwesomeMediation().setConfig(config);
         this.awesomeMediation.setMediationAdCallback(new MediationAdCallback<MediationInterstitialAd<Activity>>() {

@@ -5,9 +5,9 @@ import android.text.TextUtils;
 
 import com.awesome.mediation.library.MediationAdNetwork;
 import com.awesome.mediation.library.MediationAppDelegate;
+import com.awesome.mediation.library.util.MediationAdLogger;
 import com.awesome.mediation.library.util.MediationDeviceUtil;
 import com.awesome.mediation.library.util.MediationFirebaseConfigFetcher;
-import com.awesome.mediation.library.util.MediationAdLogger;
 import com.awesome.mediation.library.util.MediationGooglePlayInstallerUtils;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 
@@ -16,7 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class MediationAdRemoteConfig implements MediationRemoteConfig {
+public class MediationAdRemoteConfig implements MediationRemoteConfig, MediationConfigConstant {
 
     private static volatile MediationAdRemoteConfig instance;
     private Context context;
@@ -66,6 +66,10 @@ public class MediationAdRemoteConfig implements MediationRemoteConfig {
                 saveConfigByPrefix(firebaseRemoteConfig, "it_");
                 saveConfigByPrefix(firebaseRemoteConfig, "nt_");
                 saveConfigByPrefix(firebaseRemoteConfig, "oa_");
+                long timeItDelay = firebaseRemoteConfig.getLong(TIME_IT_DELAY);
+                if (timeItDelay > 0) {
+                    MediationPrefs.instance(context).putLong(TIME_IT_DELAY, timeItDelay);
+                }
                 if (fetchListener != null) {
                     fetchListener.onSuccess(firebaseRemoteConfig);
                 }

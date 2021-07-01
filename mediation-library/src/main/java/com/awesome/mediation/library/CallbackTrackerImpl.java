@@ -1,9 +1,12 @@
 package com.awesome.mediation.library;
 
 import android.content.Context;
+import android.text.TextUtils;
+import android.widget.Toast;
 
 import com.awesome.mediation.library.base.MediationAdCallback;
 import com.awesome.mediation.library.base.MediationNetworkLoader;
+import com.awesome.mediation.library.config.MediationAdManager;
 import com.awesome.mediation.library.util.MediationAdEventTracker;
 
 public class CallbackTrackerImpl<T extends MediationNetworkLoader> extends MediationAdCallback<T> {
@@ -52,10 +55,19 @@ public class CallbackTrackerImpl<T extends MediationNetworkLoader> extends Media
 
     private void logEvent(MediationAdNetwork mediationAdNetwork, String adPlacement, String event) {
         MediationAdEventTracker instance = MediationAdEventTracker.instance(context);
+        String eventLog = "";
         if (ALL_ERROR.equalsIgnoreCase(event)) {
-            instance.log(adPlacement + "_" + event);
+            eventLog = adPlacement + "_" + event;
         } else {
-            instance.log(mediationAdNetwork.getAdName() + "_" + adPlacement + "_" + event);
+            eventLog = mediationAdNetwork.getAdName() + "_" + adPlacement + "_" + event;
+        }
+        if (TextUtils.isEmpty(eventLog)) {
+            return;
+        }
+        instance.log(eventLog);
+
+        if (MediationAdManager.getInstance(context).isDebugWithToastMode()) {
+            Toast.makeText(context, eventLog, Toast.LENGTH_SHORT).show();
         }
     }
 
