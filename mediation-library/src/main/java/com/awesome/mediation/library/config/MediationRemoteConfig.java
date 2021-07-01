@@ -26,6 +26,10 @@ public interface MediationRemoteConfig {
     String getAdMobRewardAdUnit(String key, String defaultVal);
 
 
+    String getNativeAdTemplate(String adPositionName);
+
+    String getNativeAdTemplate(String adPositionName, String defaultVal);
+
     boolean isLiveUnity(String key, boolean defaultValue);
 
     boolean isLiveUnity(String key);

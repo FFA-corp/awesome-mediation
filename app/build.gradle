@@ -56,5 +56,6 @@ dependencies {
     implementation 'com.appodeal.ads:sdk:2.10.1.+'
 
     implementation project(path: ':mediation-appodeal')
+    implementation project(path: ':mediation-native-template')
 
 }

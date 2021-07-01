@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <declare-styleable name="MediationNativeAdView">
-        <attr name="ad_style">
-            <enum name="normal" value="0" />
-            <enum name="mediaView" value="1" />
-        </attr>
-    </declare-styleable>
-</resources>

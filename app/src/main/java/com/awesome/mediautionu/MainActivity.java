@@ -4,11 +4,15 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.awesome.mediation.NativeAdTemplate;
 import com.awesome.mediation.admob.AdMobBannerAd;
 import com.awesome.mediation.admob.AdMobInterstitialAd;
 import com.awesome.mediation.admob.AdMobNativeAd;
@@ -30,20 +34,24 @@ import com.awesome.mediation.library.base.MediationNetworkLoader;
 import com.awesome.mediation.library.base.MediationRewardedAd;
 import com.awesome.mediation.library.base.RewardAdRewardListener;
 import com.awesome.mediation.library.config.MediationAdConfig;
+import com.awesome.mediation.library.config.MediationAdRemoteConfig;
 import com.awesome.mediation.library.config.MediationRemoteConfig;
 import com.awesome.mediation.unity.UnityBannerAd;
 import com.awesome.mediation.unity.UnityInterstitialAd;
 import com.awesome.mediation.unity.UnityRewardedAd;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private AwesomeMediation awesomeMediation;
-    private MediationNativeAdView nativeAdView;
+    private ViewGroup nativeAdView;
     private MediationBannerAd mediationBannerAd;
     private MediationNativeAd nativeAd;
     private AwesomeMediation nativeMediation;
+    private String adTemplate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,16 +61,34 @@ public class MainActivity extends AppCompatActivity {
 
         nativeAdView = findViewById(R.id.native_ad_view);
 
+        NativeAdTemplate[] values = NativeAdTemplate.values();
+        List<String> adTemplates = new ArrayList<>();
+        for (NativeAdTemplate value : values) {
+            adTemplates.add(value.getName());
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, adTemplates);
+        Spinner spAdStyle = findViewById(R.id.sp_ad_style);
+        spAdStyle.setAdapter(adapter);
+        spAdStyle.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                adTemplate = adTemplates.get(i);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
         MediationRemoteConfig mediationConfig = new MediationAdConfig(this).getConfig();
+        MediationAdRemoteConfig.instance(this).fetch();
 
         findViewById(R.id.bt_request_inter).setOnClickListener(view -> loadAdInter(mediationConfig));
         findViewById(R.id.bt_request_reward).setOnClickListener(view -> loadReward(mediationConfig));
         findViewById(R.id.bt_request_banner).setOnClickListener(view -> loadBanner(mediationConfig));
         findViewById(R.id.bt_request_native).setOnClickListener(view -> loadAdNative(mediationConfig));
-//        this.loadAdInter(mediationConfig);
         this.loadAdNative(mediationConfig);
-//        this.loadBanner(mediationConfig);
-//        this.loadReward(mediationConfig);
     }
 
     private void loadBanner(MediationRemoteConfig mediationConfig) {
@@ -141,6 +167,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadAdNative(MediationRemoteConfig mediationConfig) {
+
+        MediationNativeAdView mediationNativeAdView = new MediationNativeAdView(MainActivity.this, adTemplate, "nt_home");
+        mediationNativeAdView.setAdStyle(adTemplate);
+        nativeAdView.removeAllViews();
+        nativeAdView.addView(mediationNativeAdView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
         AwesomeMediation.Config config = new AwesomeMediation.Config(this);
         HashMap<MediationAdNetwork, MediationNetworkLoader> mediationNetworkConfigMap = new HashMap<>();
 
@@ -161,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAdLoaded(String positionName, MediationAdNetwork mediationAdNetwork, MediationAdType adType, MediationNativeAd nativeAd) {
                 super.onAdLoaded(positionName, mediationAdNetwork, adType, nativeAd);
-                nativeAd.showAd(nativeAdView);
+                nativeAd.showAd(mediationNativeAdView);
                 MainActivity.this.nativeAd = nativeAd;
             }
 

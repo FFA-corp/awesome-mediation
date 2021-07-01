@@ -23,7 +23,7 @@ import java.util.List;
 
 public class AppodealNativeAd extends MediationNativeAd {
 
-    private static final long TIMEOUT = 7000;
+    private static final long TIMEOUT = 4000;
     private com.appodeal.ads.NativeAd loadedAd;
     private final Handler handler = new Handler();
     private boolean destroyed;

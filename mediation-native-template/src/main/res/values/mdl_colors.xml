@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="mdl_ad_border">#000000</color>
+    <color name="mdl_ad_bg">#4A4A4A</color>
+    <color name="mdl_ad_loading_bg">#CCDFDFDF</color>
+    <color name="cta_bg_pressed">#B3118C4E</color>
+    <color name="cta_bg">#118C4E</color>
+
+    <color name="cta_bg_blue_gradient_start">#1070FF</color>
+    <color name="cta_bg_blue_gradient_end">#2FC1FF</color>
+
+    <color name="cta_bg_blue_gradient_end_press">#E62FC1FF</color>
+    <color name="cta_bg_blue_gradient_start_press">#E61070FF</color>
+
+    <color name="cta_bg_green">#00EDB4</color>
+    <color name="cta_bg_green_press">#BF00EDB4</color>
+
+    <color name="cta_text_dark">#4A4A4A</color>
+    <color name="cta_text_light">#ffffff</color>
+
+    <color name="cta_bg_blue_gradient_2_end">#08C9A6</color>
+    <color name="cta_bg_blue_gradient_2_start">#0057FF</color>
+
+    <color name="cta_bg_blue_gradient_2_end_press">#E608C9A6</color>
+    <color name="cta_bg_blue_gradient_2_start_press">#E60057FF</color>
+
+</resources>

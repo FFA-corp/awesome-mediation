@@ -38,6 +38,7 @@ public class MainApp extends Application {
         MediationAdManager.init(this, BuildConfig.DEBUG);
         AppodealInitializer.init("a09ff3fbe33f1be47614a928684d998d94f895e1e431052b", true);
         MediationAdManager.getInstance(this)
+                .setDebugWithToastMode(true)
                 .setAppDelegate(new MediationAppDelegate() {
                     @Override
                     public boolean isPolicyAccepted() {

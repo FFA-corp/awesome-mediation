@@ -3,6 +3,7 @@ package com.awesome.mediation.library.config;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.awesome.mediation.NativeAdTemplate;
 import com.awesome.mediation.library.MediationAdNetwork;
 import com.awesome.mediation.library.MediationAppDelegate;
 import com.awesome.mediation.library.util.MediationAdLogger;
@@ -24,11 +25,11 @@ public class MediationAdRemoteConfig implements MediationRemoteConfig, Mediation
     private MediationAdRemoteConfig() {
     }
 
-    public static MediationAdRemoteConfig instance() {
+    public static MediationAdRemoteConfig instance(Context context) {
         if (instance == null) {
             synchronized (MediationAdRemoteConfig.class) {
                 if (instance == null) {
-                    instance = new MediationAdRemoteConfig();
+                    instance = new MediationAdRemoteConfig(context);
                 }
             }
         }
@@ -66,10 +67,15 @@ public class MediationAdRemoteConfig implements MediationRemoteConfig, Mediation
                 saveConfigByPrefix(firebaseRemoteConfig, "it_");
                 saveConfigByPrefix(firebaseRemoteConfig, "nt_");
                 saveConfigByPrefix(firebaseRemoteConfig, "oa_");
+                saveConfigByPrefix(firebaseRemoteConfig, MediationAdNetwork.ADMOB.getAdName());
+                saveConfigByPrefix(firebaseRemoteConfig, MediationAdNetwork.UNITY.getAdName());
+                saveConfigByPrefix(firebaseRemoteConfig, MediationAdNetwork.APPODEAL.getAdName());
+
                 long timeItDelay = firebaseRemoteConfig.getLong(TIME_IT_DELAY);
                 if (timeItDelay > 0) {
                     MediationPrefs.instance(context).putLong(TIME_IT_DELAY, timeItDelay);
                 }
+
                 if (fetchListener != null) {
                     fetchListener.onSuccess(firebaseRemoteConfig);
                 }
@@ -194,6 +200,16 @@ public class MediationAdRemoteConfig implements MediationRemoteConfig, Mediation
             return "ca-app-pub-3940256099942544/5224354917";
         }
         return MediationPrefs.instance(context).getString(MediationAdNetwork.ADMOB.getAdName() + "_" + key, defaultVal);
+    }
+
+    @Override
+    public String getNativeAdTemplate(String adPositionName) {
+        return getNativeAdTemplate(adPositionName, NativeAdTemplate.DEFAULT.getName());
+    }
+
+    @Override
+    public String getNativeAdTemplate(String adPositionName, String defaultVal) {
+        return MediationPrefs.instance(context).getString(adPositionName + "_style", defaultVal);
     }
 
     @Override

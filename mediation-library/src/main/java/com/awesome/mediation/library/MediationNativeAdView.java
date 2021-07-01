@@ -12,15 +12,17 @@ import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.ColorRes;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 
+import com.awesome.mediation.NativeAdTemplate;
 import com.awesome.mediation.library.base.MediationNativeAd;
+import com.awesome.mediation.library.config.MediationAdConfig;
 import com.awesome.mediation.library.config.MediationPrefs;
+import com.awesome.mediation.library.config.MediationRemoteConfig;
 import com.awesome.mediation.library.util.MediationAdLogger;
 import com.squareup.picasso.Picasso;
 
@@ -42,25 +44,42 @@ public class MediationNativeAdView extends LinearLayout {
     private TextView tvNativeTitle;
     private TextView tvNativeBody;
     private TextView btNativeCta;
-    private LinearLayout viewIcon;
-    private FrameLayout layoutAdChoice;
-    private FrameLayout layoutContentAd;
-    private LinearLayout layoutRootAd;
-    private RelativeLayout layoutMediaView;
-    private Style adStyle = Style.MEDIA_VIEW;
+    private ViewGroup viewIcon;
+    private ViewGroup layoutAdChoice;
+    private ViewGroup layoutContentAd;
+    private ViewGroup layoutRootAd;
+    private ViewGroup layoutMediaView;
+    private NativeAdTemplate adStyle = NativeAdTemplate.DEFAULT;
     private boolean adAttached;
     private View nativeAdContentLayout;
     private ViewGroup layoutAdContent;
+    private String remoteName;
 
     public MediationNativeAdView(Context context) {
         super(context);
         initView(null);
     }
 
-    public MediationNativeAdView(Context context, Style style) {
+    public MediationNativeAdView(Context context, String adStyle, String remoteName) {
         super(context);
-        this.adStyle = style;
+        this.adStyle = NativeAdTemplate.lookup(adStyle);
+        this.remoteName = remoteName;
         initView(null);
+    }
+
+    public MediationNativeAdView setAdStyle(NativeAdTemplate adStyle) {
+        this.adStyle = adStyle;
+        return this;
+    }
+
+    public MediationNativeAdView setRemoteName(String remoteName) {
+        this.remoteName = remoteName;
+        return this;
+    }
+
+    public MediationNativeAdView setAdStyle(String adStyleName) {
+        this.adStyle = NativeAdTemplate.lookup(adStyleName);
+        return this;
     }
 
     public MediationNativeAdView(Context context, AttributeSet attrs) {
@@ -80,21 +99,31 @@ public class MediationNativeAdView extends LinearLayout {
     }
 
     private void initView(AttributeSet attrs) {
+        MediationRemoteConfig config = MediationAdConfig.newInstance(getContext()).getConfig();
 
         Context context = getContext();
-        inflate(context, R.layout.mdl_native_ad_view, this);
-
         TypedArray typedArray = context.getTheme().obtainStyledAttributes(attrs, R.styleable.MediationNativeAdView, 0, 0);
-
-        if (typedArray.hasValue(R.styleable.MediationNativeAdView_ad_style)) {
-            int style = typedArray.getInt(R.styleable.MediationNativeAdView_ad_style, 0);
-            this.adStyle = Style.fromId(style);
+        if (typedArray.hasValue(R.styleable.MediationNativeAdView_adStyle)) {
+            this.adStyle = NativeAdTemplate.lookup(typedArray.getInt(R.styleable.MediationNativeAdView_adStyle, 0));
         }
+
+        String nativeAdTemplate = null;
+        if (typedArray.hasValue(R.styleable.MediationNativeAdView_remoteName)) {
+            remoteName = typedArray.getString(R.styleable.MediationNativeAdView_remoteName);
+            nativeAdTemplate = config.getNativeAdTemplate(remoteName, adStyle.getName());
+        }
+
+        if (!TextUtils.isEmpty(nativeAdTemplate)) {
+            adStyle = NativeAdTemplate.lookup(nativeAdTemplate);
+        }
+        inflateView(context);
+    }
+
+    private void inflateView(Context context) {
+        inflate(context, adStyle.getLayoutRes(context), this);
 
         this.viewIcon = this.findViewById(R.id.native_ad_ad_icon_layout);
         this.layoutMediaView = this.findViewById(R.id.layout_media_view);
-        this.layoutMediaView.setVisibility(this.adStyle == Style.MEDIA_VIEW ? View.VISIBLE : GONE);
-
         this.tvNativeTitle = this.findViewById(R.id.native_ad_title);
         this.tvNativeBody = this.findViewById(R.id.native_ad_body);
         this.btNativeCta = this.findViewById(R.id.native_cta);
@@ -104,20 +133,23 @@ public class MediationNativeAdView extends LinearLayout {
         this.layoutContentAd = this.findViewById(R.id.layout_content_ad);
         this.layoutRootAd = this.findViewById(R.id.root_ad_view);
 
-        int mediaViewHeight = MediationPrefs.instance(context).getMediaViewHeight();
-        if (mediaViewHeight <= 0) {
-            layoutRootAd.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                @Override
-                public void onGlobalLayout() {
-                    int measuredWidth = layoutRootAd.getMeasuredWidth();
-                    int height = (int) (((float) 9 / 16) * measuredWidth);
-                    layoutMediaView.getLayoutParams().height = height;
-                    MediationPrefs.instance(context).saveMediaViewHeight(height);
-                    layoutRootAd.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                }
-            });
-        } else {
-            layoutMediaView.getLayoutParams().height = mediaViewHeight;
+        if (hasMediaView()) {
+            int mediaViewHeight = MediationPrefs.instance(context).getMediaViewHeight();
+            if (mediaViewHeight <= 0) {
+                layoutRootAd.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        int measuredWidth = layoutRootAd.getMeasuredWidth();
+                        int height = (int) (((float) 9 / 16) * measuredWidth);
+                        layoutMediaView.getLayoutParams().height = height;
+                        MediationPrefs.instance(context).saveMediaViewHeight(height);
+                        layoutRootAd.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    }
+                });
+            } else {
+                layoutMediaView.getLayoutParams().height = mediaViewHeight;
+            }
+            layoutMediaView.setVisibility(VISIBLE);
         }
 
         this.nativeAdContentLayout = this.findViewById(R.id.native_ad_content_layout);
@@ -136,23 +168,9 @@ public class MediationNativeAdView extends LinearLayout {
 
     private void activeView(View[] views, boolean active) {
         for (View view : views) {
-            view.setActivated(active);
-        }
-    }
-
-    public enum Style {
-        NORMAL(0), MEDIA_VIEW(1);
-        int id;
-
-        Style(int id) {
-            this.id = id;
-        }
-
-        static Style fromId(int id) {
-            for (Style f : values()) {
-                if (f.id == id) return f;
+            if (view != null) {
+                view.setActivated(active);
             }
-            throw new IllegalArgumentException();
         }
     }
 
@@ -181,7 +199,7 @@ public class MediationNativeAdView extends LinearLayout {
         this.hideLoadingState(tvNativeTitle, tvNativeBody, btNativeCta, viewIcon, layoutMediaView);
 
         ViewGroup adMediaView = unifiedNativeAd.getAdMediaView();
-        if (this.adStyle == Style.MEDIA_VIEW && adMediaView != null) {
+        if (hasMediaView()) {
             this.layoutMediaView.addView(adMediaView, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
             this.layoutMediaView.setVisibility(VISIBLE);
         }
@@ -197,8 +215,9 @@ public class MediationNativeAdView extends LinearLayout {
 
         this.tvNativeTitle.setText(unifiedNativeAd.getAdTitle());
         this.tvNativeBody.setText(unifiedNativeAd.getAdBody());
-        this.btNativeCta.setBackgroundResource(R.drawable.mdl_bg_cta);
+        this.btNativeCta.setBackgroundResource(adStyle.getCtaBackground());
         this.btNativeCta.setText(unifiedNativeAd.getAdCallToAction());
+        this.btNativeCta.setTextColor(ContextCompat.getColor(context, adStyle.getCtaTextColor()));
 
         ImageView adIconLogoView = new ImageView(context);
         ViewGroup adIconView = unifiedNativeAd.getAdIconView();
@@ -258,14 +277,16 @@ public class MediationNativeAdView extends LinearLayout {
             Class<?> nativeAdClass = classLoader.loadClass(APPODEAL_NATIVE_AD);
             Object nativeAdInstance = nativeAdClass.cast(unifiedNativeAd.getAdLoadedInstance());
 
-            Method containsVideo = nativeAdClass.getMethod("containsVideo");
-            boolean containVideoVal = (boolean) containsVideo.invoke(nativeAdInstance);
-            if (containVideoVal) {
-                Class<?> nativeMediaViewClass = classLoader.loadClass(APPODEAL_NATIVE_MEDIA_VIEW);
-                Method setNativeMediaView = nativeAdViewClass.getMethod("setNativeMediaView", nativeMediaViewClass);
-                setNativeMediaView.invoke(nativeAdViewInstance, nativeMediaViewClass.cast(unifiedNativeAd.getAdMediaView()));
-            } else {
-                layoutMediaView.setVisibility(GONE);
+            if (hasMediaView()) {
+                Method containsVideo = nativeAdClass.getMethod("containsVideo");
+                boolean containVideoVal = (boolean) containsVideo.invoke(nativeAdInstance);
+                if (containVideoVal) {
+                    Class<?> nativeMediaViewClass = classLoader.loadClass(APPODEAL_NATIVE_MEDIA_VIEW);
+                    Method setNativeMediaView = nativeAdViewClass.getMethod("setNativeMediaView", nativeMediaViewClass);
+                    setNativeMediaView.invoke(nativeAdViewInstance, nativeMediaViewClass.cast(unifiedNativeAd.getAdMediaView()));
+                } else {
+                    layoutMediaView.setVisibility(GONE);
+                }
             }
 
             Method getProviderView = nativeAdClass.getMethod("getProviderView", Context.class);
@@ -283,6 +304,10 @@ public class MediationNativeAdView extends LinearLayout {
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean hasMediaView() {
+        return adStyle.isUseMediaView() && layoutMediaView != null;
     }
 
     private void setupAdViewForAdMob(MediationNativeAd unifiedNativeAd, Context context) {
