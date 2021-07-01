@@ -30,6 +30,7 @@ public class UnityInterstitialAd extends MediationInterstitialAd<Activity> {
 
             @Override
             public void onUnityAdsShowStart(String placementId) {
+                UnityInterstitialAd.super.onAdImpression();
             }
 
             @Override
@@ -39,7 +40,6 @@ public class UnityInterstitialAd extends MediationInterstitialAd<Activity> {
 
             @Override
             public void onUnityAdsShowComplete(String placementId, UnityAds.UnityAdsShowCompletionState state) {
-                UnityInterstitialAd.super.onAdImpression();
             }
         });
 

@@ -2,6 +2,7 @@ package com.awesome.mediation.library.base;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import com.awesome.mediation.library.MediationAdNetwork;
 import com.awesome.mediation.library.MediationAdType;
@@ -38,10 +39,14 @@ public abstract class MediationNetworkLoader {
         MediationPrefs instance = MediationPrefs.instance(context);
         boolean isInterAd = getMediationAdType() == MediationAdType.INTERSTITIAL;
         if (isInterAd) {
-            MediationAdLogger.logI("Last request \"" + adPositionName + "\" at " + instance.getLastInterAdRequestTime() + "\n"
+            String message = "Last request \"" + adPositionName + "\" at " + instance.getLastInterAdRequestTime() + "\n"
                     + "Time delay: " + instance.getTimeItDelay() + "s | time used: "
                     + ((System.currentTimeMillis() - instance.getLastInterAdRequestTime()) / 1000) + "s\n"
-                    + "Can request ads: " + instance.canRequestAd());
+                    + "Can request ads: " + instance.canRequestAd();
+            if (MediationAdManager.getInstance(context).isDebugWithToastMode()) {
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+            }
+            MediationAdLogger.logI(message);
         }
 
         if (isInterAd && !instance.canRequestAd()) {

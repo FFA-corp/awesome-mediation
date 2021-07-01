@@ -52,6 +52,7 @@ public class AdMobNativeAd extends MediationNativeAd {
 
     @Override
     public void showAd(MediationNativeAdView mediationNativeAdView) {
+        onAdImpression();
         mediationNativeAdView.show(this);
     }
 
@@ -96,7 +97,7 @@ public class AdMobNativeAd extends MediationNativeAd {
             @Override
             public void onAdClicked() {
                 super.onAdClicked();
-                AdMobNativeAd.this.onAdClicked();
+                AdMobNativeAd.super.onAdClicked();
             }
 
             @Override
