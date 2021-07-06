@@ -38,18 +38,9 @@ public abstract class MediationNetworkLoader {
 
         MediationPrefs instance = MediationPrefs.instance(context);
         boolean isInterAd = getMediationAdType() == MediationAdType.INTERSTITIAL;
-        if (isInterAd) {
-            String message = "Last request \"" + adPositionName + "\" at " + instance.getLastInterAdRequestTime() + "\n"
-                    + "Time delay: " + instance.getTimeItDelay() + "s | time used: "
-                    + ((System.currentTimeMillis() - instance.getLastInterAdRequestTime()) / 1000) + "s\n"
-                    + "Can request ads: " + instance.canRequestAd();
-            if (MediationAdManager.getInstance(context).isDebugWithToastMode()) {
-                Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
-            }
-            MediationAdLogger.logI(message);
-        }
+        this.showDebugMessageIfPossible(context, instance, isInterAd);
 
-        if (isInterAd && !instance.canRequestAd()) {
+        if (isInterAd && !instance.canRequestInterAd()) {
             return false;
         }
 
@@ -59,11 +50,24 @@ public abstract class MediationNetworkLoader {
         }
 
         MediationRemoteConfig config = new MediationAdConfig(context).getConfig();
-        if (!config.isLivePlacement(adPositionName)) {
+        if (!config.isLivePlacement(adPositionName) || !config.isLivePosition(getMediationNetwork(), adPositionName)) {
             onAdError(String.format(Locale.US, "Placement \"%s\" is disable", adPositionName));
             return false;
         }
         return true;
+    }
+
+    private void showDebugMessageIfPossible(Context context, MediationPrefs instance, boolean isInterAd) {
+        if (isInterAd) {
+            String message = "Last request \"" + adPositionName + "\" at " + instance.getLastInterAdRequestTime() + "\n"
+                    + "Time delay: " + instance.getTimeItDelay() + "s | time used: "
+                    + ((System.currentTimeMillis() - instance.getLastInterAdRequestTime()) / 1000) + "s\n"
+                    + "Can request ads: " + instance.canRequestInterAd();
+            if (MediationAdManager.getInstance(context).isDebugWithToastMode()) {
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+            }
+            MediationAdLogger.logI(message);
+        }
     }
 
     protected void logRequestAdTime() {

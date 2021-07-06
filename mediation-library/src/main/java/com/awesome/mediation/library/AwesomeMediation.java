@@ -6,7 +6,9 @@ import android.os.Handler;
 import com.awesome.mediation.library.base.MediationAdCallback;
 import com.awesome.mediation.library.base.MediationNativeAd;
 import com.awesome.mediation.library.base.MediationNetworkLoader;
+import com.awesome.mediation.library.config.MediationAdConfig;
 import com.awesome.mediation.library.config.MediationPrefs;
+import com.awesome.mediation.library.config.MediationRemoteConfig;
 import com.awesome.mediation.library.util.MediationAdLogger;
 import com.awesome.mediation.library.util.MediationDeviceUtil;
 
@@ -31,11 +33,16 @@ public class AwesomeMediation {
     }
 
     public void load() {
-        List<String> priorityList = MediationPrefs.instance(config.context).getPriorityList(config.getPriority());
-        Map<MediationAdNetwork, MediationNetworkLoader> mediationNetworkConfigMap = config.getMediationNetworkConfigMap();
+        MediationRemoteConfig config = MediationAdConfig.newInstance(this.config.context).getConfig();
+
+        List<String> priorityList = MediationPrefs.instance(this.config.context).getPrioritiesByString(this.config.getPriority());
+        Map<MediationAdNetwork, MediationNetworkLoader> mediationNetworkConfigMap = this.config.getMediationNetworkConfigMap();
         for (String priority : priorityList) {
             MediationAdNetwork mediationAdNetwork = MediationAdNetwork.lookup(priority);
             if (mediationAdNetwork == null) {
+                continue;
+            }
+            if (MediationAdNetwork.APPODEAL.equals(mediationAdNetwork) && !config.isAppodealAvailable()) {
                 continue;
             }
             MediationNetworkLoader mediationNetworkLoader = mediationNetworkConfigMap.get(mediationAdNetwork);

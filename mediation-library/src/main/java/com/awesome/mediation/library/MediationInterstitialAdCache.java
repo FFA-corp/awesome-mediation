@@ -1,12 +1,10 @@
 package com.awesome.mediation.library;
 
 import android.app.Activity;
-import android.text.TextUtils;
 
 import androidx.lifecycle.MutableLiveData;
 
 import com.awesome.mediation.library.base.MediationInterstitialAd;
-import com.awesome.mediation.library.config.MediationAdManager;
 
 import java.util.HashMap;
 import java.util.Map;

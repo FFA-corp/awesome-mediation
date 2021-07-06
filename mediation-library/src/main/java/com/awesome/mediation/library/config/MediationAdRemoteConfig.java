@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 
 public class MediationAdRemoteConfig implements MediationRemoteConfig, MediationConfigConstant {
 
+    private static final String LIVE_PLACEMENT_FORMAT = "%s_%s_live";
     private static volatile MediationAdRemoteConfig instance;
     private Context context;
 
@@ -45,12 +46,12 @@ public class MediationAdRemoteConfig implements MediationRemoteConfig, Mediation
         if (!isAdAvailable()) {
             return false;
         }
-        return MediationPrefs.instance(context).getBoolean(key, defaultValue);
+        return getMediationConfigs().getBoolean(key, defaultValue);
     }
 
     @Override
     public boolean isLiveAdMob(String key) {
-        return isLiveAdMob(MediationAdNetwork.ADMOB.getAdName() + "_" + key, true);
+        return isLiveAdMob(getLiveKey(MediationAdNetwork.ADMOB, key), true);
     }
 
     @Override
@@ -64,6 +65,7 @@ public class MediationAdRemoteConfig implements MediationRemoteConfig, Mediation
             @Override
             public void onSuccess(FirebaseRemoteConfig firebaseRemoteConfig) {
                 MediationAdLogger.logD("Fetch ad configs success");
+                saveConfigByPrefix(firebaseRemoteConfig, "ad_");
                 saveConfigByPrefix(firebaseRemoteConfig, "it_");
                 saveConfigByPrefix(firebaseRemoteConfig, "nt_");
                 saveConfigByPrefix(firebaseRemoteConfig, "oa_");
@@ -73,7 +75,7 @@ public class MediationAdRemoteConfig implements MediationRemoteConfig, Mediation
 
                 long timeItDelay = firebaseRemoteConfig.getLong(TIME_IT_DELAY);
                 if (timeItDelay > 0) {
-                    MediationPrefs.instance(context).putLong(TIME_IT_DELAY, timeItDelay);
+                    getMediationConfigs().putLong(TIME_IT_DELAY, timeItDelay);
                 }
 
                 if (fetchListener != null) {
@@ -112,15 +114,15 @@ public class MediationAdRemoteConfig implements MediationRemoteConfig, Mediation
             Pattern queryLangPattern = Pattern.compile("true|false", Pattern.CASE_INSENSITIVE);
             Matcher matcher = queryLangPattern.matcher(inputStringFirebase);
             if (matcher.matches()) {
-                MediationPrefs.instance(context).putBoolean(subConfigKey, Boolean.valueOf(inputStringFirebase));
+                getMediationConfigs().putBoolean(subConfigKey, Boolean.valueOf(inputStringFirebase));
                 return;
             }
             throw new Exception("Invalid type");
         } catch (Exception exception) {
             try {
-                MediationPrefs.instance(context).putInt(subConfigKey, Integer.parseInt(inputStringFirebase));
+                getMediationConfigs().putInt(subConfigKey, Integer.parseInt(inputStringFirebase));
             } catch (NumberFormatException e) {
-                MediationPrefs.instance(context).putString(subConfigKey, inputStringFirebase);
+                getMediationConfigs().putString(subConfigKey, inputStringFirebase);
             }
         }
     }
@@ -136,7 +138,7 @@ public class MediationAdRemoteConfig implements MediationRemoteConfig, Mediation
             return false;
         }
 
-        return MediationPrefs.instance(context).getBoolean(key, defaultValue);
+        return getMediationConfigs().getBoolean(key, defaultValue);
     }
 
     private boolean isAdAvailable() {
@@ -152,18 +154,32 @@ public class MediationAdRemoteConfig implements MediationRemoteConfig, Mediation
     }
 
     @Override
-    public int getAdCacheTime() {
-        return MediationPrefs.instance(context).getInt(MediationConfigConstant.AD_CACHE_TIME, 0);
+    public boolean isLivePosition(MediationAdNetwork adNetwork, String adPosition) {
+        return getMediationConfigs().getBoolean(String.format(LIVE_PLACEMENT_FORMAT, adNetwork.getAdName(), adPosition), true);
+    }
+
+    private MediationBasePrefData getMediationConfigs() {
+        return MediationPrefs.instance(context);
     }
 
     @Override
-    public String getAdPriority() {
-        return MediationPrefs.instance(context).getString(MediationConfigConstant.AD_PRIORITY, "");
+    public int getAdCacheTime() {
+        return getMediationConfigs().getInt(MediationConfigConstant.AD_CACHE_TIME, 0);
+    }
+
+    @Override
+    public String getAdPriority(String defaultVal) {
+        return getMediationConfigs().getString(MediationConfigConstant.AD_PRIORITY, defaultVal);
     }
 
     @Override
     public String getAdPriorityNative() {
-        return MediationPrefs.instance(context).getString(MediationConfigConstant.AD_PRIORITY_NATIVE, "");
+        return getMediationConfigs().getString(MediationConfigConstant.AD_PRIORITY_NATIVE, "");
+    }
+
+    @Override
+    public String getAdPriorityNative(String defaultVal) {
+        return getMediationConfigs().getString(MediationConfigConstant.AD_PRIORITY_NATIVE, defaultVal);
     }
 
     @Override
@@ -171,7 +187,7 @@ public class MediationAdRemoteConfig implements MediationRemoteConfig, Mediation
         if (isDebugMode()) {
             return "ca-app-pub-3940256099942544/1033173712";
         }
-        return MediationPrefs.instance(context).getString(MediationAdNetwork.ADMOB.getAdName() + "_" + key, defaultVal);
+        return getMediationConfigs().getString(MediationAdNetwork.ADMOB.getAdName() + "_" + key, defaultVal);
     }
 
     private boolean isDebugMode() {
@@ -183,7 +199,7 @@ public class MediationAdRemoteConfig implements MediationRemoteConfig, Mediation
         if (isDebugMode()) {
             return "ca-app-pub-3940256099942544/2247696110";
         }
-        return MediationPrefs.instance(context).getString(MediationAdNetwork.ADMOB.getAdName() + "_" + key, defaultVal);
+        return getMediationConfigs().getString(MediationAdNetwork.ADMOB.getAdName() + "_" + key, defaultVal);
     }
 
     @Override
@@ -191,7 +207,7 @@ public class MediationAdRemoteConfig implements MediationRemoteConfig, Mediation
         if (isDebugMode()) {
             return "ca-app-pub-3940256099942544/3419835294";
         }
-        return MediationPrefs.instance(context).getString(MediationAdNetwork.ADMOB.getAdName() + "_" + key, defaultVal);
+        return getMediationConfigs().getString(MediationAdNetwork.ADMOB.getAdName() + "_" + key, defaultVal);
     }
 
     @Override
@@ -199,7 +215,7 @@ public class MediationAdRemoteConfig implements MediationRemoteConfig, Mediation
         if (isDebugMode()) {
             return "ca-app-pub-3940256099942544/5224354917";
         }
-        return MediationPrefs.instance(context).getString(MediationAdNetwork.ADMOB.getAdName() + "_" + key, defaultVal);
+        return getMediationConfigs().getString(MediationAdNetwork.ADMOB.getAdName() + "_" + key, defaultVal);
     }
 
     @Override
@@ -209,7 +225,7 @@ public class MediationAdRemoteConfig implements MediationRemoteConfig, Mediation
 
     @Override
     public String getNativeAdTemplate(String adPositionName, String defaultVal) {
-        return MediationPrefs.instance(context).getString(adPositionName + "_style", defaultVal);
+        return getMediationConfigs().getString(adPositionName + "_style", defaultVal);
     }
 
     @Override
@@ -217,7 +233,11 @@ public class MediationAdRemoteConfig implements MediationRemoteConfig, Mediation
         if (!isAdAvailable()) {
             return false;
         }
-        return MediationPrefs.instance(context).getBoolean(MediationAdNetwork.UNITY.getAdName() + "_" + key, defaultValue);
+        return getMediationConfigs().getBoolean(getLiveKey(MediationAdNetwork.UNITY, key), defaultValue);
+    }
+
+    private String getLiveKey(MediationAdNetwork adNetwork, String key) {
+        return String.format(LIVE_PLACEMENT_FORMAT, adNetwork.getAdName(), key);
     }
 
     @Override
@@ -227,25 +247,31 @@ public class MediationAdRemoteConfig implements MediationRemoteConfig, Mediation
 
     @Override
     public String getUnityBannerAdUnit(String key, String defaultVal) {
-        return MediationPrefs.instance(context).getString(MediationAdNetwork.UNITY.getAdName() + "_" + key, defaultVal);
+        return getMediationConfigs().getString(MediationAdNetwork.UNITY.getAdName() + "_" + key, defaultVal);
     }
 
     @Override
     public String getUnityInterAdUnit(String key, String defaultVal) {
-        return MediationPrefs.instance(context).getString(MediationAdNetwork.UNITY.getAdName() + "_" + key, defaultVal);
+        return getMediationConfigs().getString(MediationAdNetwork.UNITY.getAdName() + "_" + key, defaultVal);
     }
 
     @Override
     public String getUnityRewardAdUnit(String key, String defaultVal) {
-        return MediationPrefs.instance(context).getString(MediationAdNetwork.UNITY.getAdName() + "_" + key, defaultVal);
+        return getMediationConfigs().getString(MediationAdNetwork.UNITY.getAdName() + "_" + key, defaultVal);
     }
 
     @Override
     public boolean isLiveAppodeal(String key, boolean defaultValue) {
-        if (!isAdAvailable() || !MediationGooglePlayInstallerUtils.isInstalledViaGooglePlay(context)) {
-            return false;
+        if (isAppodealAvailable()) {
+            return getMediationConfigs().getBoolean(MediationAdNetwork.APPODEAL.getAdName() + "_" + key, defaultValue);
         }
-        return MediationPrefs.instance(context).getBoolean(MediationAdNetwork.APPODEAL.getAdName() + "_" + key, defaultValue);
+        return false;
+    }
+
+    @Override
+    public boolean isAppodealAvailable() {
+        return isAdAvailable() && (MediationGooglePlayInstallerUtils.isInstalledViaGooglePlay(context) ||
+                MediationAdManager.getInstance(context).isDebugMode());
     }
 
     @Override
@@ -255,22 +281,22 @@ public class MediationAdRemoteConfig implements MediationRemoteConfig, Mediation
 
     @Override
     public String getAppodealBannerAdUnit(String key, String defaultVal) {
-        return MediationPrefs.instance(context).getString(MediationAdNetwork.APPODEAL.getAdName() + "_" + key, defaultVal);
+        return getMediationConfigs().getString(MediationAdNetwork.APPODEAL.getAdName() + "_" + key, defaultVal);
     }
 
     @Override
     public String getAppodealNativeAdUnit(String key, String defaultVal) {
-        return MediationPrefs.instance(context).getString(MediationAdNetwork.APPODEAL.getAdName() + "_" + key, defaultVal);
+        return getMediationConfigs().getString(MediationAdNetwork.APPODEAL.getAdName() + "_" + key, defaultVal);
     }
 
     @Override
     public String getAppodealInterAdUnit(String key, String defaultVal) {
-        return MediationPrefs.instance(context).getString(MediationAdNetwork.APPODEAL.getAdName() + "_" + key, defaultVal);
+        return getMediationConfigs().getString(MediationAdNetwork.APPODEAL.getAdName() + "_" + key, defaultVal);
     }
 
     @Override
     public String getAppodealRewardAdUnit(String key, String defaultVal) {
-        return MediationPrefs.instance(context).getString(MediationAdNetwork.APPODEAL.getAdName() + "_" + key, defaultVal);
+        return getMediationConfigs().getString(MediationAdNetwork.APPODEAL.getAdName() + "_" + key, defaultVal);
     }
 
 }

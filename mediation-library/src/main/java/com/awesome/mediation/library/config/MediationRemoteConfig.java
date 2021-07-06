@@ -1,5 +1,6 @@
 package com.awesome.mediation.library.config;
 
+import com.awesome.mediation.library.MediationAdNetwork;
 import com.awesome.mediation.library.util.MediationFirebaseConfigFetcher;
 
 public interface MediationRemoteConfig {
@@ -11,6 +12,8 @@ public interface MediationRemoteConfig {
     boolean isLivePlacement(String key);
 
     boolean isLivePlacement(String key, boolean defaultValue);
+
+    boolean isLivePosition(MediationAdNetwork adNetwork, String adPosition);
 
 
     boolean isLiveAdMob(String key, boolean defaultValue);
@@ -43,6 +46,8 @@ public interface MediationRemoteConfig {
 
     boolean isLiveAppodeal(String key, boolean defaultValue);
 
+    boolean isAppodealAvailable();
+
     boolean isLiveAppodeal(String key);
 
     String getAppodealBannerAdUnit(String key, String defaultVal);
@@ -56,7 +61,9 @@ public interface MediationRemoteConfig {
 
     int getAdCacheTime();
 
-    String getAdPriority();
+    String getAdPriority(String defaultVal);
 
     String getAdPriorityNative();
+
+    String getAdPriorityNative(String defaultVal);
 }

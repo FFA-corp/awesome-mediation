@@ -224,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
         mediationNetworkConfigMap.put(MediationAdNetwork.APPODEAL, appodealInterstitialAd);
 
         config.setMediationNetworkConfigMap(mediationNetworkConfigMap)
-                .setPriority(getPriority());
+                .setPriority(MediationAdNetwork.UNITY);
 
         this.awesomeMediation = new AwesomeMediation().setConfig(config);
         this.awesomeMediation.setMediationAdCallback(new MediationAdCallback<MediationInterstitialAd<Activity>>() {

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.pm.InstallSourceInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.text.TextUtils;
 
 public class MediationGooglePlayInstallerUtils {
 

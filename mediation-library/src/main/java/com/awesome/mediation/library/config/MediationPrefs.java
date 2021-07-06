@@ -26,6 +26,10 @@ public class MediationPrefs extends MediationBasePrefData implements MediationCo
 
     public List<String> getPriorityList(String key, String defaultVal) {
         String useSubStyles = getString(key, defaultVal);
+        return getPrioritiesByString(useSubStyles);
+    }
+
+    public List<String> getPrioritiesByString(String useSubStyles) {
         MediationAdLogger.logD(useSubStyles);
         if (TextUtils.isEmpty(useSubStyles)) {
             ArrayList<String> subStyleDefault = new ArrayList<>();
@@ -68,7 +72,7 @@ public class MediationPrefs extends MediationBasePrefData implements MediationCo
         return getLong(TIME_IT_DELAY, MediationAdManager.getInstance(context).getInterstitialAdTimeDelay());
     }
 
-    public boolean canRequestAd() {
+    public boolean canRequestInterAd() {
         long delayTime = getTimeItDelay();
         if (delayTime <= 0) {
             return true;
